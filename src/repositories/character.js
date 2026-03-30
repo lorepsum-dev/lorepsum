@@ -18,8 +18,8 @@ const CharacterRepository= {
             c.description,
             ct.name as type
             FROM characters c
-            JOIN character_types ct on c.id = ct.character_type_id
-            WHERE character_type_id = $1
+            JOIN character_types ct on c.character_type_id = ct.id
+            WHERE ct.name = $1
         `
         const {rows} = await pool.query(query, [typeId])
         return rows

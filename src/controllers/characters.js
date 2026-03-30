@@ -20,11 +20,11 @@ const  CharacterController = {
         }
 
     },
-
-    async byId(req, res){
+    
+    async findBy(req, res){
         try{
-            const id = req.url.split('=')[1]
-            const data = await characters.findById(id);
+            const value = req.params.value;
+            const data = await characters.find(value);
             res.writeHead(200, {'Content-Type':'application/json; charset=utf-8'})
             res.end(JSON.stringify({
                 status: 'success',
@@ -39,6 +39,7 @@ const  CharacterController = {
             }))
         }
     }
+
 }
 
 

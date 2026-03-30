@@ -1,8 +1,10 @@
 const http = require ('node:http');
-const CharacterController = require('./src/controllers/characters');
+const routes = require('./src/routes');
+const { promiseHooks } = require('node:v8');
+
 
 const server = http.createServer(async (req, res) => {
-    const url = req.url
+    const {url, method} = req
     if (url === '/'){
         res.writeHead(200, ({'Content-Type': 'application/json; charset=utf-8'}))
         return res.end(JSON.stringify({
@@ -10,15 +12,20 @@ const server = http.createServer(async (req, res) => {
         }))
     }
 
-    if(url === '/characters'){
-        return CharacterController.listAll(req, res);
-    }
+   for (const route of routes){
+        const match = url.match(route.pattern);  //characters/1
+        
+        if(match && method == route.method){ //characters/1 && GET
+         req.params = {value: match[1]}
+         return route.handler(req, res)
+        }
+   }
+    res.writeHead(404);
+    res.end(JSON.stringify({ message: 'Rota não encontrada no Lorepsum' }));
 
-    if(url.startsWith(`/characters/id`)){
-        return CharacterController.byId(req,res)
-    }
 })
 
 server.listen(3000, () => {
     console.log('API ONLINE!')
 })
+
