@@ -1,6 +1,5 @@
 const http = require ('node:http');
-const routes = require('./src/routes');
-const { promiseHooks } = require('node:v8');
+const routes = require('./src/router');
 
 
 const server = http.createServer(async (req, res) => {
