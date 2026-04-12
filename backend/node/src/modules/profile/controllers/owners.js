@@ -11,6 +11,7 @@ const ownersController = {
                 owners: data
             }))
         } catch (error) {
+            console.error(error)
             res.writeHead(400, {'Content-Type':'application/json; charset=utf-8'})
             res.end(JSON.stringify({
                 status: 'error',

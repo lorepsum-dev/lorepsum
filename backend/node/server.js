@@ -22,8 +22,11 @@ const server = http.createServer(async (req, res) => {
          return route.handler(req, res)
         }
    }
-    res.writeHead(404);
-    res.end(JSON.stringify({ message: 'Rota não encontrada no Lorepsum' }));
+    res.writeHead(404, ({'Content-Type': 'application/json; charset=utf-8'}));
+    res.end(JSON.stringify({ 
+        status: 'error',
+        message: 'Rota não encontrada no Lorepsum' 
+    }));
 
 })
 
