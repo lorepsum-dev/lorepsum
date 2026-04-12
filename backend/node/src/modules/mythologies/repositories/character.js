@@ -1,4 +1,5 @@
-const pool = require('../../../config/db');
+const SetSchema = require('../../../config/db');
+const pool = SetSchema('mythologies')
 
 const CharacterRepository= {
     async findAll(){
