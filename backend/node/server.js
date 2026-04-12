@@ -15,7 +15,10 @@ const server = http.createServer(async (req, res) => {
         const match = url.match(route.pattern);  //characters/1
         
         if(match && method == route.method){ //characters/1 && GET
-         req.params = {value: match[1]}
+         req.params = {
+            field: match[1],
+            value: match[2]
+        }
          return route.handler(req, res)
         }
    }

@@ -12,7 +12,7 @@ const routes = [
         handler: CharacterController.byId
     },
     {
-        pattern: /^\/characters\/type\/(\w+)$/,
+        pattern: /^\/characters\/(\w+)\/(\w+)$/,
         method: 'GET',
         handler: CharacterController.findBy
     }

@@ -1,4 +1,5 @@
 const SetSchema = require('../../../config/db');
+const { findBy } = require('../controllers/characters');
 const pool = SetSchema('mythologies')
 
 const CharacterRepository= {
@@ -12,19 +13,40 @@ const CharacterRepository= {
         const {rows} = await pool.query(query,[id])
         return rows[0]
     },
-    async findByType(typeId){
-        const query = `
-            SELECT 
+  
+    async findBy(field, value) {      
+    const baseQuery = `
+        SELECT 
+            c.id,
             c.name,
             c.description,
-            ct.name as type
-            FROM characters c
-            JOIN character_types ct on c.character_type_id = ct.id
-            WHERE ct.name = $1
-        `
-        const {rows} = await pool.query(query, [typeId])
-        return rows
+            ct.name as type,
+            g.name as gender,
+            o.name
+        FROM characters c
+        JOIN genders g ON c.gender_id = g.id
+        JOIN character_types ct ON c.character_type_id = ct.id
+        JOIN origins o on c.origin_id = o.id
+    `
+    const allowedFields = {
+        type: 'ct.name',
+        gender: 'g.name',
+        origin: 'o.name'
     }
+
+    const column = allowedFields[field]
+
+    if (!column) {
+        throw new Error('Filtro inválido')
+    }
+
+    const query = `
+        ${baseQuery}
+        WHERE ${column} = $1
+    `
+    const { rows } = await pool.query(query, [value])
+    return rows
+}
 }
 
 module.exports = CharacterRepository
