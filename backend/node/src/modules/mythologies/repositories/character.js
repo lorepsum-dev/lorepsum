@@ -1,5 +1,4 @@
 const SetSchema = require('../../../config/db');
-const { findBy } = require('../controllers/characters');
 const pool = SetSchema('mythologies')
 
 const CharacterRepository= {
