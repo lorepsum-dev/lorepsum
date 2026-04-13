@@ -1,16 +1,16 @@
 const SetSchema = require('../../../config/db');
 const pool = SetSchema('mythologies')
 
-const CharacterRepository= {
+const EntityRepository= {
     async findAll(){
-        const query = 'SELECT id, name, description FROM characters ORDER BY id'
+        const query = 'SELECT id, name, description FROM entities ORDER BY id'
         const {rows} = await pool.query(query)
         return rows
     },
     async findById(id){
-        const query = 'SELECT id, name, description from characters where id = $1'
+        const query = 'SELECT id, name, description from entities where id = $1'
         const {rows} = await pool.query(query,[id])
-        return rows[0]
+        return [rows]
     },
   
     async findBy(field, value) {      
@@ -22,7 +22,7 @@ const CharacterRepository= {
             ct.name as type,
             g.name as gender,
             o.name
-        FROM characters c
+        FROM entities c
         JOIN genders g ON c.gender_id = g.id
         JOIN character_types ct ON c.character_type_id = ct.id
         JOIN origins o on c.origin_id = o.id
@@ -48,4 +48,4 @@ const CharacterRepository= {
 }
 }
 
-module.exports = CharacterRepository
+module.exports = EntityRepository

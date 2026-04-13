@@ -1,20 +1,20 @@
-const CharacterController = require('./controllers/characters')
+const EntityController = require('./controllers/entities')
 
 const routes = [
     {
-        pattern: /^\/characters$/,
+        pattern: /^\/entities$/,
         method: 'GET',
-        handler: CharacterController.listAll
+        handler: EntityController.listAll
     },
     {
-        pattern: /^\/characters\/(\d+)$/,
+        pattern: /^\/entities\/(\d+)$/,
         method: 'GET',
-        handler: CharacterController.byId
+        handler: EntityController.byId
     },
     {
-        pattern: /^\/characters\/(\w+)\/(\w+)$/,
+        pattern: /^\/entities\/(\w+)\/(\w+)$/,
         method: 'GET',
-        handler: CharacterController.findBy
+        handler: EntityController.findBy
     }
 
 ]
