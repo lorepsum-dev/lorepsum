@@ -10,7 +10,7 @@ const EntityRepository= {
     async findById(id){
         const query = 'SELECT id, name, description from entities where id = $1'
         const {rows} = await pool.query(query,[id])
-        return [rows]
+        return rows[0]
     },
   
     async findBy(field, value) {      
@@ -19,16 +19,13 @@ const EntityRepository= {
             c.id,
             c.name,
             c.description,
-            ct.name as type,
             g.name as gender,
-            o.name
+            o.name as origin
         FROM entities c
         JOIN genders g ON c.gender_id = g.id
-        JOIN character_types ct ON c.character_type_id = ct.id
         JOIN origins o on c.origin_id = o.id
     `
     const allowedFields = {
-        type: 'ct.name',
         gender: 'g.name',
         origin: 'o.name'
     }

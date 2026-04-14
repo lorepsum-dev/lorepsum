@@ -11,22 +11,19 @@ const server = http.createServer(async (req, res) => {
         }))
     }
 
-   for (const route of routes){
-        const match = url.match(route.pattern);  //characters/1
-        
-        if(match && method == route.method){ //characters/1 && GET
-         req.params = {
-            field: match[1],
-            value: match[2]
-        }
-         return route.handler(req, res)
-        }
-   }
-    res.writeHead(404, ({'Content-Type': 'application/json; charset=utf-8'}));
-    res.end(JSON.stringify({ 
-        status: 'error',
-        message: 'Rota não encontrada no Lorepsum' 
-    }));
+    for (const route of routes) {
+      const match = url.match(route.pattern)
+
+      if (!match || method !== route.method) {
+        continue
+      }
+      req.params = route.getParams ? route.getParams(match) : {}
+
+      return route.handler(req, res)
+    }
+
+    res.writeHead(404, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ message: 'Rota nãou encontrada no Lorepsum' }))
 
 })
 
