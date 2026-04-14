@@ -23,7 +23,7 @@ class Database {
 
         try {
             $this->connection = new PDO($dsn, $db_user, $db_pass);
-            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);            
         } catch (PDOException $e) {
             die('Tremor no Submundo! Erro de conexão: ' . $e->getMessage());        
         }
@@ -47,5 +47,12 @@ class Database {
      */
     public function getConnection() {
         return $this->connection;
+    }
+
+    /**
+     * Sets the database schema for searching.
+     */
+    public function setSchema($schema = 'public') {
+        $this->connection->exec("SET search_path TO {$schema}, public");
     }
 }

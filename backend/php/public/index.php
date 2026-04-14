@@ -1,7 +1,8 @@
 <?php
 
-use App\Modules\Mythologies\Repository\EntityRepository;
+use App\Core\Database;
 
 require_once __DIR__ . '/../src/Config/Config.php';
 require_once __DIR__ . '/../src/Bootstrap/App.php';
 
+Database::getInstance()->setSchema('mythologies');

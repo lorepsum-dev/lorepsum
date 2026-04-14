@@ -19,7 +19,7 @@ abstract class Repository {
      * @return array 
      */
     public function all() {
-        $stmt = $this->db->prepare("SELECT * FROM mythologies.{$this->table}");
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table}");
         $stmt->execute();
 
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
