@@ -8,6 +8,7 @@ abstract class Repository {
     protected $db;
     protected $table;
     protected $pk;
+    protected $domain;
 
     public function __construct() {
         $this->db = Database::getInstance()->getConnection();
@@ -15,13 +16,44 @@ abstract class Repository {
     }
 
     /**
-     * Get all records.
+     * Executes the query and sets the fetch mode.
+     * @param string $sql
+     * @param array $params
+     */
+    private function executeQuery($sql, $params = []) {
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
+        if ($this->domain) {
+            $stmt->setFetchMode(\PDO::FETCH_CLASS, $this->domain);
+        }
+
+        return $stmt;
+    }
+
+    /**
+     * Gets all records.
      * @return array 
      */
     public function all() {
-        $stmt = $this->db->prepare("SELECT * FROM {$this->table}");
-        $stmt->execute();
+        $sql = "SELECT * FROM {$this->table}";
+        
+        $result = $this->executeQuery($sql)->fetchAll();
 
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $result;
+    }
+
+    /**
+     * Gets an object by its primary key.
+     * @param integer $id
+     * @return array
+     */
+    public function find($id) {
+        $sql = "SELECT * FROM {$this->table} WHERE {$this->pk} = :id";        
+        $params = [':id' => $id];
+
+        $result = $this->executeQuery($sql, $params)->fetch();
+
+        return $result;
     }
 }
