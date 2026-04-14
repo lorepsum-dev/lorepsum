@@ -47,12 +47,29 @@ const EntityRepository= {
         WHERE ${column} = $1
     `
     const { rows } = await pool.query(query, [value])
+    
     const entitiesMap = {}
     rows.forEach(row=> {
-
+       if(!entitiesMap[row.id]){
+            entitiesMap[row.id] ={
+                id: row.id,
+                name: row.name,
+                description: row.description,
+                categories: {}
+            }
+            console.log(row)
+       }
+       if(row.category){
+            const axis = row.axis
+        if(!entitiesMap[row.id].categories[axis]){
+            entitiesMap[row.id].categories[axis] = []
+        }
+        entitiesMap[row.id].categories[axis].push(row.category)
+       }     
     })
-    return rows
-}
+    
+        return Object.values(entitiesMap)
+    }
 }
 
 module.exports = EntityRepository
