@@ -6,8 +6,12 @@ use PDO;
 use PDOException;
 
 class Database {
-    private static $connection;
+    private static $instance = null;
+    private $connection;
 
+    /**
+     * Initializes the database connection.
+     */
     private function __construct() {
         $db_host = $_ENV['DB_HOST'];
         $db_user = $_ENV['DB_USER'];
@@ -18,19 +22,30 @@ class Database {
         $dsn = "pgsql:host=$db_host;port=$db_port;dbname=$db_name;sslmode=require";
 
         try {
-            self::$connection = new PDO($dsn, $db_user, $db_pass);
-            self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->connection = new PDO($dsn, $db_user, $db_pass);
+            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            echo 'Tremor no Submundo! Erro de conexão: ' . $e->getMessage();
-            exit;
+            die('Tremor no Submundo! Erro de conexão: ' . $e->getMessage());        
         }
     }
 
-    public static function connect() {
-        if (!self::$connection) {
-            new Database();
+    /**
+     * Gets the database singleton.
+     * @return \App\Core\Database
+     */
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
         } 
 
-        return self::$connection;
+        return self::$instance;
+    }
+
+    /**
+     * Gets the connection from the instance.
+     * @return \PDO
+     */
+    public function getConnection() {
+        return $this->connection;
     }
 }

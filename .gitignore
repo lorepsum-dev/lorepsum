@@ -2,8 +2,8 @@ node_modules
 .env
 test
 
-# composer
-/vendor/
+# dependências
+vendor/
 
 # pastas geradas
 backend/node_modules
