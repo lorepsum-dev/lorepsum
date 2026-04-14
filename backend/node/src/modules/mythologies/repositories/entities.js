@@ -15,19 +15,25 @@ const EntityRepository= {
   
     async findBy(field, value) {      
     const baseQuery = `
-        SELECT 
-            c.id,
-            c.name,
-            c.description,
+		SELECT 
+            e.id,
+            e.name,
+            e.description,
+			ax.name as axis,
+			cat.name as category,
             g.name as gender,
             o.name as origin
-        FROM entities c
-        JOIN genders g ON c.gender_id = g.id
-        JOIN origins o on c.origin_id = o.id
+        FROM entities e
+		JOIN entity_categories ec on e.id = ec.entity_id
+		JOIN categories cat on ec.category_id = cat.id
+		JOIN category_axes ax on ax.id = cat.axis_id
+        JOIN genders g ON e.gender_id = g.id
+        JOIN origins o on e.origin_id = o.id
     `
     const allowedFields = {
         gender: 'g.name',
-        origin: 'o.name'
+        origin: 'o.name',
+        category:'cat.name'
     }
 
     const column = allowedFields[field]
@@ -41,6 +47,10 @@ const EntityRepository= {
         WHERE ${column} = $1
     `
     const { rows } = await pool.query(query, [value])
+    const entitiesMap = {}
+    rows.forEach(row=> {
+
+    })
     return rows
 }
 }
