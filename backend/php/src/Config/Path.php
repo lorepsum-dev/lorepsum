@@ -4,7 +4,7 @@ namespace App\Config;
 
 class Path {
     /**
-     * Gets the project's root path
+     * Get the project's root path
      * @return string
      */
     public static function root() {
@@ -12,7 +12,7 @@ class Path {
     }
 
     /**
-     * Gets the project's src path
+     * Get the project's src path
      * @return string
      */
     public static function src() {
@@ -20,7 +20,7 @@ class Path {
     }
 
     /**
-     * Gets the project's config path
+     * Get the project's config path
      * @return string
      */
     public static function config() {
@@ -28,7 +28,7 @@ class Path {
     }
 
     /**
-     * Gets the project's vendor path
+     * Get the project's vendor path
      * @return string
      */
     public static function vendor() {

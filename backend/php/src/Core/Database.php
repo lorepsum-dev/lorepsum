@@ -10,7 +10,7 @@ class Database {
     private $connection;
 
     /**
-     * Initializes the database connection.
+     * Initialize the database connection.
      */
     private function __construct() {
         $db_host = $_ENV['DB_HOST'];
@@ -30,7 +30,7 @@ class Database {
     }
 
     /**
-     * Gets the database singleton.
+     * Get the database singleton.
      * @return \App\Core\Database
      */
     public static function getInstance() {
@@ -42,7 +42,7 @@ class Database {
     }
 
     /**
-     * Gets the connection from the instance.
+     * Get the connection from the instance.
      * @return \PDO
      */
     public function getConnection() {
@@ -50,7 +50,7 @@ class Database {
     }
 
     /**
-     * Sets the database schema for searching.
+     * Set the database schema for searching.
      */
     public function setSchema($schema = 'public') {
         $this->connection->exec("SET search_path TO {$schema}, public");

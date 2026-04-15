@@ -4,7 +4,7 @@ namespace App\Modules\Mythologies\Domain;
 
 abstract class Domain {
     /**
-     * Populates the object.
+     * Populate the object.
      * @return \App\Modules\Mythologies\Domain\Domain
      */
     public function fill(array $data) {

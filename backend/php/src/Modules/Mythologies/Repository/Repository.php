@@ -16,7 +16,7 @@ abstract class Repository {
     }
 
     /**
-     * Executes the query and sets the fetch mode.
+     * Execute the query and sets the fetch mode.
      * @param string $sql
      * @param array $params
      */
@@ -32,7 +32,7 @@ abstract class Repository {
     }
 
     /**
-     * Gets all records.
+     * Get all records.
      * @return array 
      */
     public function all() {
@@ -44,7 +44,7 @@ abstract class Repository {
     }
 
     /**
-     * Gets a record by its primary key.
+     * Get a record by its primary key.
      * @param integer $id
      * @return array
      */
