@@ -33,5 +33,13 @@ class Path {
      */
     public static function vendor() {
         return self::root() . 'vendor' . DIRECTORY_SEPARATOR;
-    }    
+    }  
+    
+    /**
+     * Get the project's modules path
+     * @return string
+     */
+    public static function modules() {
+        return self::src() . 'Modules' . DIRECTORY_SEPARATOR;
+    }  
 }
