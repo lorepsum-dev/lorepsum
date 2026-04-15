@@ -1,6 +1,0 @@
-<?php
-
-define('ROOT_PATH', dirname(__DIR__, 2) . DIRECTORY_SEPARATOR);
-define('SRC_PATH', ROOT_PATH . 'src' . DIRECTORY_SEPARATOR);
-define('CONFIG_PATH', SRC_PATH . 'config' . DIRECTORY_SEPARATOR);
-define('VENDOR_PATH', ROOT_PATH . 'vendor' . DIRECTORY_SEPARATOR);

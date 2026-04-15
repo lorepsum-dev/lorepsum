@@ -44,7 +44,7 @@ abstract class Repository {
     }
 
     /**
-     * Gets an object by its primary key.
+     * Gets a record by its primary key.
      * @param integer $id
      * @return array
      */
