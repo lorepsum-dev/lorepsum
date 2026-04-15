@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Mythologies\Repository;
+namespace App\Core;
 
 use App\Core\Database;
 
@@ -25,7 +25,7 @@ abstract class Repository {
         $stmt->execute($params);
 
         if ($this->domain) {
-            $stmt->setFetchMode(\PDO::FETCH_CLASS, $this->domain);
+            $stmt->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $this->domain);
         }
 
         return $stmt;

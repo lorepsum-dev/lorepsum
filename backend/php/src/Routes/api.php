@@ -5,5 +5,5 @@ use App\Core\Router;
 
 return function (Router $router) {
     // Mythologies
-    require Path::modules() . 'Mythologies/routes.php';
-}
+    (require Path::modules() . 'Mythologies/routes.php')($router);
+};

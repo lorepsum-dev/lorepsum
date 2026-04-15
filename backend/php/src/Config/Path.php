@@ -35,11 +35,20 @@ class Path {
         return self::root() . 'vendor' . DIRECTORY_SEPARATOR;
     }  
     
-    /**
+     /**
      * Get the project's modules path
      * @return string
      */
     public static function modules() {
         return self::src() . 'Modules' . DIRECTORY_SEPARATOR;
-    }  
+    } 
+
+    /**
+     * Get the project's routes path
+     * @return string
+     */
+    public static function routes() {
+        return self::src() . 'Routes' . DIRECTORY_SEPARATOR;
+    }
+    
 }

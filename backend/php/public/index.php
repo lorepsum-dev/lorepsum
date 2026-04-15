@@ -1,13 +1,12 @@
 <?php
 
-use App\Core\Database;
-use App\Modules\Mythologies\Repository\EntityRepository;
+use App\Core\Router;
+use App\Config\Path;
 
 require_once __DIR__ . '/../src/Bootstrap/App.php';
 
-Database::getInstance()->setSchema('mythologies');
+$router = new Router();
 
-$entity = new EntityRepository();
-$data = $entity->find(2);
+(require Path::routes() . 'api.php')($router);
 
-pre($data);
+$router->dispatch();

@@ -68,16 +68,17 @@ class Router {
      * @param array $params
      */
     private function execute($action, $params) {
-        # Function
-        if (is_callable($action)) {
-            return call_user_func_array($action, $params);
-        }
-
         # Controller
         if (is_array($action)) {
             [$controller, $method] = $action;
             return call_user_func_array([new $controller, $method], $params);
         }
+
+        # Function
+        if (is_callable($action)) {
+            die('CAI NO CALLABLE');
+            return call_user_func_array($action, $params);
+        }        
 
         Response::error("Not a valid action.");
     }
@@ -87,9 +88,11 @@ class Router {
      * @param mixed $method The HTTP method.
      * @param string $uri The resource's identifier.
      */
-    public function dispatch($method, $uri) {
+    public function dispatch() {
         # Extract the path from the URL.
-        $uri = parse_url($uri, PHP_URL_PATH);
+        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        # Get the HTTP method.
+        $method = $_SERVER['REQUEST_METHOD'];
 
         # Check if there are any registered routes for the given HTTP method.
         if (!isset($this->routes[$method])) {
