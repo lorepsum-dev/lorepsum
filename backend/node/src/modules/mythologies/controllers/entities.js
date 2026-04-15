@@ -1,18 +1,17 @@
-const characters = require('../repositories/character');
+const entities = require('../repositories/entities');
 
-const  CharacterController = {
+const  EntityController = {
     async listAll(req, res){
         try {
-            const data = await characters.findAll();
+            const data = await entities.findAll();
             res.writeHead(200, {'Content-Type': 'application/json; charset=utf-8'})
             res.end(JSON.stringify({
                 status: 'success',
                 results: data.length,
-                characters: data
+                entities: data
             }))
         }              
         catch(error){
-            console.error('[listAll]', error.message)
             res.writeHead(500, {'Content-Type': 'application/json; charset=utf-8'})
             res.end(JSON.stringify({
             status: 'error',
@@ -27,15 +26,15 @@ const  CharacterController = {
 
             const {field, value} =  req.params
 
-            const data = await characters.findBy(field, value)
+            const data = await entities.findBy(field, value)
             res.writeHead(200, {'Content-Type':'application/json; charset=utf-8'})
             res.end(JSON.stringify({
                 status: 'success',
-                character: data
+                entities: data
             }))
         }
         catch(error){
-            console.error(error.message)
+            
             res.writeHead(500, {'Content-Type': 'application/json; charset=utf-8'})
             res.end(JSON.stringify({
             status: 'error',
@@ -46,15 +45,17 @@ const  CharacterController = {
 
     async byId(req, res){
         try{
-            const value = req.params.value;
-            const data = await characters.findById(value);
+            const value = req.params.id
+            
+            const data = await entities.findById(value);
             res.writeHead(200, {'Content-Type':'application/json; charset=utf-8'})
             res.end(JSON.stringify({
                 status: 'success',
-                character: data
+                entities: data
             }))
         }
         catch(error){
+            console.error(error.message)
             res.writeHead(500, {'Content-Type': 'application/json; charset=utf-8'})
             res.end(JSON.stringify({
             status: 'error',
@@ -68,4 +69,4 @@ const  CharacterController = {
 
 
 
-module.exports = CharacterController
+module.exports = EntityController
