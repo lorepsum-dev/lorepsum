@@ -1,45 +1,51 @@
 const SetSchema = require('../../../config/db');
 const pool = SetSchema('mythologies')
+const {baseQuery} = require('../utils/queries')
 
 function getCategories(rows) {
     const entitiesMap = {}
-    rows.forEach(row=> {
-       if(!entitiesMap[row.id]){
-            entitiesMap[row.id] ={
+
+    rows.forEach(row => {
+        if (!entitiesMap[row.id]) {
+            entitiesMap[row.id] = {
                 id: row.id,
                 name: row.name,
                 description: row.description,
-                categories: {}
+                gender: row.gender,
+                origin: row.origin,
+                categories: {},
+                groups: []
             }
-       }
-       if(row.category){
-            const axis = row.axis
-        if(!entitiesMap[row.id].categories[axis]){
-            entitiesMap[row.id].categories[axis] = []
         }
-        entitiesMap[row.id].categories[axis].push(row.category)
-       }     
-    })
-    
-        return Object.values(entitiesMap)
-}
 
-    const baseQuery = `
-		SELECT 
-            e.id,
-            e.name,
-            e.description,
-			ax.name as axis,
-			cat.name as category,
-            g.name as gender,
-            o.name as origin
-        FROM entities e
-		LEFT JOIN entity_categories ec on e.id = ec.entity_id
-		LEFT JOIN categories cat on ec.category_id = cat.id
-		LEFT JOIN category_axes ax on ax.id = cat.axis_id
-        LEFT JOIN genders g ON e.gender_id = g.id
-        LEFT JOIN origins o on e.origin_id = o.id
-    `
+        if (row.category) {
+            const axis = row.axis
+
+            if (!entitiesMap[row.id].categories[axis]) {
+                entitiesMap[row.id].categories[axis] = []
+            }
+
+            if (!entitiesMap[row.id].categories[axis].includes(row.category)) {
+                entitiesMap[row.id].categories[axis].push(row.category)
+            }
+        }
+
+        if (row.group) {
+            const groupAlreadyExists = entitiesMap[row.id].groups.some(
+                group => group.name === row.group
+            )
+
+            if (!groupAlreadyExists) {
+                entitiesMap[row.id].groups.push({
+                    name: row.group,
+                    description: row.group_description
+                })
+            }
+        }
+    })
+
+    return Object.values(entitiesMap)
+}
 
 const EntityRepository= {
     async findAll(){

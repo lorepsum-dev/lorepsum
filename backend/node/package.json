@@ -1,14 +1,18 @@
 {
-  "name": "lorepsum",
+  "name": "lorepsum-api",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "A structured knowledge base for lore, characters, worlds, and symbolic entities, designed for exploration, organization, and creative expansion across mythologies, fiction, including original worlds and personal narratives.",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node server.js",
+    "start": "node server.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": {
+  "name":  "Tifany Porto",
+  "email": "tifanymporto@gmail.com"
+},
+  "license": "MIT",
   "dependencies": {
     "dotenv": "^17.4.1",
     "neonctl": "^2.22.0",
