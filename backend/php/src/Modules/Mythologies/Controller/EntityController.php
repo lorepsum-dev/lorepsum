@@ -13,6 +13,20 @@ class EntityController extends Controller {
         $this->repository = new EntityRepository();
     }
 
+    /**
+     * Get all the entities.
+     * @return \App\Core\Response
+     */
+    public function index() {
+        $entities = $this->repository->all();
+
+        return $this->collection($entities, EntityResource::class);
+    }
+
+    /**
+     * Get a entity by its id.
+     * @return \App\Core\Response
+     */
     public function show($id) {
         $entity = $this->repository->find($id);
 
