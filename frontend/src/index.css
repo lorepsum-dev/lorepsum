@@ -117,6 +117,10 @@ All colors MUST be HSL.
   }
 }
 
+.page-snap::-webkit-scrollbar {
+  display: none;
+}
+
 .tree-scroll::-webkit-scrollbar {
   height: 2px;
   transition: height 0.2s;
@@ -132,6 +136,20 @@ All colors MUST be HSL.
   border-radius: 999px;
 }
 .tree-scroll:hover::-webkit-scrollbar-thumb {
+  background: hsl(275 68% 78% / 0.5);
+}
+
+.narrative-scroll::-webkit-scrollbar {
+  width: 2px;
+}
+.narrative-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.narrative-scroll::-webkit-scrollbar-thumb {
+  background: hsl(275 68% 78% / 0.25);
+  border-radius: 999px;
+}
+.narrative-scroll::-webkit-scrollbar-thumb:hover {
   background: hsl(275 68% 78% / 0.5);
 }
 

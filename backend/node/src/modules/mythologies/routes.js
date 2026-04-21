@@ -1,7 +1,14 @@
 const EntityController = require('./controllers/entities')
 const RelationshipController = require('./controllers/relationships')
+const NarrativeController = require('./controllers/narratives')
 
 const routes = [
+  {
+    pattern: /^\/narratives$/,
+    method: 'GET',
+    handler: NarrativeController.listAll,
+    getParams: () => ({})
+  },
   {
     pattern: /^\/relationships$/,
     method: 'GET',

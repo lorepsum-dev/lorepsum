@@ -6,7 +6,7 @@ const links = [
   { label: "Builds", to: "/builds" },
   { label: "Lab", to: "/lab" },
   { label: "Lore's", to: "/lores" },
-  { label: "Owners", to: "/lores/owners" },
+  { label: "Owners", to: "/owners" },
 ];
 
 const Nav = () => {
@@ -19,7 +19,9 @@ const Nav = () => {
 
       <div className="flex flex-col gap-10 pl-5">
         {links.map((link) => {
-          const active = pathname === link.to;
+          const active = link.to === "/lores"
+            ? pathname === "/lores" || pathname.startsWith("/lores/")
+            : pathname === link.to;
           return (
             <div key={link.to} className="relative flex items-center gap-3">
               <span className={cn(

@@ -37,6 +37,22 @@ async function fetchRelationships(): Promise<Relationship[]> {
   return data.relationships ?? [];
 }
 
+interface Narrative {
+  id: number;
+  title: string;
+  subtitle: string | null;
+  slug: string;
+  content: string;
+  display_order: number;
+  category: string | null;
+}
+
+async function fetchNarratives(): Promise<Narrative[]> {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/narratives`);
+  const data = await res.json();
+  return data.narratives ?? [];
+}
+
 function buildForest(entities: Entity[], relationships: Relationship[]): TreeNode[] {
   const parentRels = relationships.filter((r) => r.type === "parent");
   const childIds = new Set(parentRels.map((r) => r.related_id));
@@ -307,6 +323,100 @@ const EntityModal = ({
   );
 };
 
+// ── Narrative accordion ───────────────────────────────────
+const NarrativeAccordion = ({
+  narratives,
+  entities,
+  onSelectEntity,
+}: {
+  narratives: Narrative[];
+  entities: Entity[];
+  onSelectEntity: (id: number) => void;
+}) => {
+  const [openId, setOpenId] = useState<number | null>(narratives[0]?.id ?? null);
+
+  const toggle = (id: number) => setOpenId((prev) => (prev === id ? null : id));
+
+  const renderContent = (text: string) =>
+    text.split(/\*\*(.+?)\*\*/g).map((part, i) => {
+      if (i % 2 !== 1) return <span key={i}>{part}</span>;
+      const entity = entities.find((e) => e.name.toLowerCase() === part.toLowerCase());
+      if (entity) {
+        return (
+          <button
+            key={i}
+            onClick={() => onSelectEntity(entity.id)}
+            className="text-primary-light font-semibold hover:underline underline-offset-2 decoration-primary-light/40 transition-colors inline"
+          >
+            {part}
+          </button>
+        );
+      }
+      return <strong key={i} className="text-primary-light/80 font-semibold">{part}</strong>;
+    });
+
+  return (
+    <div className="w-full max-w-3xl flex flex-col divide-y divide-primary-light/10">
+      {narratives.map((n) => {
+        const isOpen = openId === n.id;
+        return (
+          <div key={n.id} className="overflow-hidden">
+            <button
+              onClick={() => toggle(n.id)}
+              className="w-full flex items-start justify-between gap-4 py-5 text-left group focus:outline-none"
+            >
+              <div className="flex flex-col gap-1">
+                {n.category && (
+                  <span className="font-mono text-[10px] uppercase tracking-[0.35em] text-primary-light/30">
+                    {n.category}
+                  </span>
+                )}
+                <span className={cn(
+                  "font-display text-lg font-semibold transition-colors duration-200",
+                  isOpen ? "text-gradient-purple" : "text-foreground/70 group-hover:text-foreground"
+                )}>
+                  {n.title}
+                </span>
+                {n.subtitle && (
+                  <span className="font-mono text-xs text-muted-foreground/60 italic">
+                    {n.subtitle}
+                  </span>
+                )}
+              </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={cn(
+                  "shrink-0 mt-1.5 text-primary-light/40 transition-transform duration-300",
+                  isOpen ? "rotate-180 text-primary-light/70" : "group-hover:text-primary-light/60"
+                )}
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+
+            <div
+              style={{ maxHeight: isOpen ? "800px" : "0px" }}
+              className="overflow-hidden transition-[max-height] duration-500 ease-in-out"
+            >
+              <p className="pb-6 font-mono text-sm leading-relaxed text-muted-foreground">
+                {renderContent(n.content)}
+              </p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 // ── Page ──────────────────────────────────────────────────
 // ── Sidebar grouping ─────────────────────────────────────
 const ERA_AXIS = "lineage";
@@ -363,10 +473,12 @@ const Mythologies = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [sidebarMode, setSidebarMode] = useState<"all" | "grouped">("grouped");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const historySectionRef = useRef<HTMLElement>(null);
   const dragRef = useRef({ dragging: false, startX: 0, scrollLeft: 0 });
 
   const { data: entities, isLoading: loadingE } = useQuery({ queryKey: ["entities"], queryFn: fetchEntities });
   const { data: relationships, isLoading: loadingR } = useQuery({ queryKey: ["relationships"], queryFn: fetchRelationships });
+  const { data: narratives = [] } = useQuery({ queryKey: ["narratives"], queryFn: fetchNarratives });
 
   const isLoading = loadingE || loadingR;
   const forest = entities && relationships ? buildForest(entities, relationships) : [];
@@ -378,6 +490,10 @@ const Mythologies = () => {
       el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
     }
   }, [forest.length]);
+
+  const revealHistory = useCallback(() => {
+    historySectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   const handleSelect = useCallback((id: number) => {
     setSelectedId((prev) => (prev === id ? null : id));
@@ -404,8 +520,11 @@ const Mythologies = () => {
   }, []);
 
   return (
-    <main className="w-full">
-      <section className="flex min-h-screen w-full flex-col items-center pl-24 pr-56 py-16">
+    <main
+      className="page-snap w-full h-screen overflow-y-scroll"
+      style={{ scrollSnapType: "y mandatory", scrollbarWidth: "none" }}
+    >
+      <section className="relative h-screen w-full flex flex-col items-center pl-24 pr-56 pt-16 pb-0" style={{ scrollSnapAlign: "start" }}>
 
         <header className="mx-auto mb-16 max-w-4xl text-center">
           <h1 className="font-display text-5xl font-bold tracking-tight text-gradient-purple md:text-7xl">
@@ -454,6 +573,77 @@ const Mythologies = () => {
             </div>
           </div>
         )}
+
+        {/* Scroll to history indicator — pinned to bottom */}
+        <button
+          onClick={revealHistory}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 group cursor-pointer focus:outline-none"
+          aria-label="Ver história"
+        >
+          <span className="font-display text-xs uppercase tracking-[0.5em] text-primary-light/50 group-hover:text-primary-light/90 transition-colors duration-300">
+            history
+          </span>
+          <div className="animate-bounce flex flex-col items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-primary-light/50 group-hover:text-primary-light transition-colors duration-300 drop-shadow-[0_0_8px_hsl(var(--primary-light)/0.4)] group-hover:drop-shadow-[0_0_14px_hsl(var(--primary-light)/0.7)]"
+            >
+              <path d="M12 5v14" />
+              <path d="m19 12-7 7-7-7" />
+            </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-primary-light/20 group-hover:text-primary-light/50 transition-colors duration-300 -mt-3"
+            >
+              <path d="m19 12-7 7-7-7" />
+            </svg>
+          </div>
+        </button>
+      </section>
+
+      {/* History section */}
+      <section
+        ref={historySectionRef}
+        className="h-screen w-full flex flex-col items-center pl-24 pr-56 py-24"
+        style={{ scrollSnapAlign: "start" }}
+      >
+        <div className="mb-2 flex w-full max-w-5xl items-center gap-4">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary-light/40" />
+          <h2 className="font-display text-2xl font-bold uppercase tracking-[0.35em] text-gradient-purple">
+            history
+          </h2>
+          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary-light/40" />
+        </div>
+
+        <div className="narrative-scroll mt-10 w-full max-w-3xl flex-1 overflow-y-auto pr-2">
+          {narratives.length > 0 ? (
+            <NarrativeAccordion
+              narratives={narratives}
+              entities={entities ?? []}
+              onSelectEntity={handleSelect}
+            />
+          ) : (
+            <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary-light/20 text-center italic">
+              to be written.
+            </p>
+          )}
+        </div>
       </section>
 
       {/* Right sidebar — entity list */}

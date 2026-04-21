@@ -56,7 +56,7 @@ const Index = () => {
             {isLoading ? (
               <Skeleton className="h-40 w-full rounded-2xl" />
             ) : (
-              lores?.map((lore) => (
+              lores?.filter((lore) => lore.name.toLowerCase() !== "owners").map((lore) => (
                 <LoreCard
                   key={lore.id}
                   name={lore.name}
