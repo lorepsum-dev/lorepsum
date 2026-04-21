@@ -3,6 +3,7 @@ const baseQuery = `
             e.id,
             e.name,
             e.description,
+            e.avatar_url,
 			ax.name as axis,
 			cat.name as category,
             g.name as gender,
