@@ -9,6 +9,9 @@ function getCategories(rows) {
                 id: row.id,
                 name: row.name,
                 description: row.description,
+                avatar_url: row.avatar_url || null,
+                gender: row.gender || null,
+                origin: row.origin || null,
                 categories: {}
             }
        }
@@ -25,10 +28,11 @@ function getCategories(rows) {
 }
 
     const baseQuery = `
-		SELECT 
+		SELECT
             e.id,
             e.name,
             e.description,
+            e.avatar_url,
 			ax.name as axis,
 			cat.name as category,
             g.name as gender,

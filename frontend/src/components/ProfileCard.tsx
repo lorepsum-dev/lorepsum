@@ -1,64 +1,74 @@
-import { User } from "lucide-react";
-
 interface ProfileCardProps {
   name: string;
   bio: string;
   skills: string[];
-  photoUrl?: string;
+  photo?: string;
+  initials: string;
+  accent?: string;
 }
 
-export function ProfileCard({ name, bio, skills, photoUrl }: ProfileCardProps) {
+const ProfileCard = ({ name, bio, skills, photo, initials, accent = "Mage" }: ProfileCardProps) => {
   return (
-    <div className="group relative w-full max-w-sm">
-      {/* Outer glow */}
-      <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-br from-primary via-accent to-primary opacity-60 blur-md transition duration-500 group-hover:opacity-90" />
+    <div className="group relative flex w-full max-w-sm flex-col" style={{ minHeight: "420px" }}>
+      <div className="absolute -inset-px rounded-[1.25rem] border-primary-light/12 opacity-80 transition duration-500 group-hover:opacity-100" />
 
-      <article className="relative flex flex-col rounded-2xl border border-border bg-card/90 p-6 backdrop-blur-sm card-glow-soft transition duration-500 group-hover:card-glow">
-        {/* Frame header */}
-        <div className="mb-4 flex items-center justify-between border-b border-border/60 pb-3">
-          <span className="font-display text-xs uppercase tracking-[0.25em] text-accent">
-            Lore Card
+      <div
+        className="relative flex flex-1 flex-col rounded-[1.25rem] border border-primary-light/10 p-5 card-glow transition-transform duration-500 group-hover:-translate-y-1"
+        style={{ background: "var(--gradient-card)" }}
+      >
+        {/* Top label */}
+        <div className="mb-4 flex items-center justify-between">
+          <span className="font-display text-xs uppercase tracking-[0.25em] text-primary-light/80">
+            {accent}
           </span>
-          <span className="h-2 w-2 rounded-full bg-accent shadow-[0_0_10px_var(--accent)]" />
+          <span className="rounded-full border border-primary-light/30 bg-primary/30 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-light">
+            Lv. ∞
+          </span>
         </div>
 
-        {/* Photo */}
-        <div className="relative mx-auto mb-5 h-40 w-40 overflow-hidden rounded-xl border-2 border-primary/60 bg-gradient-to-br from-primary/30 to-accent/20">
-          {photoUrl ? (
-            <img src={photoUrl} alt={name} className="h-full w-full object-cover" />
+        {/* Photo frame */}
+        <div className="relative mx-auto mb-5 aspect-square w-full overflow-hidden rounded-xl border border-primary-light/12 bg-secondary/60">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-glow/20 via-transparent to-accent/20" />
+          {photo ? (
+            <img src={photo} alt={name} className="h-full w-full object-cover" />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
-              <User className="h-16 w-16 text-accent/70" strokeWidth={1.2} />
+              <span className="font-display text-6xl text-gradient-purple">{initials}</span>
             </div>
           )}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-card/60 to-transparent" />
+          {/* shimmer */}
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary-glow)/0.12),transparent_60%)]" />
         </div>
 
-        {/* Name */}
-        <h3 className="text-center font-display text-2xl font-semibold text-gradient-mystic">
-          {name}
-        </h3>
+        {/* Name + bio */}
+        <div className="mb-4 text-center">
+          <h3 className="font-display text-2xl font-semibold text-foreground">{name}</h3>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{bio}</p>
+        </div>
 
-        {/* Bio */}
-        <p className="mt-2 text-center text-sm leading-relaxed text-muted-foreground">{bio}</p>
+        {/* Divider */}
+        <div className="mb-4 flex items-center gap-2">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary-light/30 to-transparent" />
+          <span className="font-display text-[10px] uppercase tracking-[0.3em] text-primary-light/60">
+            Skills
+          </span>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary-light/30 to-transparent" />
+        </div>
 
         {/* Skills */}
-        <div className="mt-5 border-t border-border/60 pt-4">
-          <p className="mb-3 font-display text-[10px] uppercase tracking-[0.3em] text-accent/80">
-            Skills
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
-            {skills.map((skill) => (
-              <span
-                key={skill}
-                className="rounded-full border border-primary/50 bg-primary/20 px-3 py-1 text-xs font-medium text-foreground/90 backdrop-blur-sm transition hover:border-accent hover:bg-accent/20"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
+        <div className="flex flex-1 flex-wrap justify-center gap-1.5 content-start">
+          {skills.map((skill) => (
+            <span
+              key={skill}
+              className="rounded-md border border-primary-light/18 bg-primary/14 px-2.5 py-1 text-xs font-medium text-primary-light shadow-[0_0_8px_hsl(var(--primary-glow)/0.08)] transition hover:bg-primary/22 hover:text-foreground"
+            >
+              {skill}
+            </span>
+          ))}
         </div>
-      </article>
+      </div>
     </div>
   );
-}
+};
+
+export default ProfileCard;
