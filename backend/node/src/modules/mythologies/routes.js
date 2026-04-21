@@ -1,6 +1,13 @@
 const EntityController = require('./controllers/entities')
+const RelationshipController = require('./controllers/relationships')
 
 const routes = [
+  {
+    pattern: /^\/relationships$/,
+    method: 'GET',
+    handler: RelationshipController.listAll,
+    getParams: () => ({})
+  },
   {
     pattern: /^\/entities$/,
     method: 'GET',

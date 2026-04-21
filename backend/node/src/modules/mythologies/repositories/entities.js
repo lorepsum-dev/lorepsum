@@ -11,6 +11,7 @@ function getCategories(rows) {
                 id: row.id,
                 name: row.name,
                 description: row.description,
+                avatar_url: row.avatar_url || null,
                 gender: row.gender,
                 origin: row.origin,
                 categories: {},
@@ -58,8 +59,8 @@ const EntityRepository= {
         const {rows} = await pool.query(query,[id])
         return getCategories(rows)
     },
-  
-    async findBy(field, value) {      
+
+    async findBy(field, value) {
     const allowedFields = {
         gender: 'g.name',
         origin: 'o.name',

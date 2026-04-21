@@ -1,4 +1,4 @@
-const ownersController = require('../profile/controllers/owners')
+const ownersController = require('../owners/controllers/owners')
 
 const routes = [
     {
