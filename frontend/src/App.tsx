@@ -6,9 +6,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Lores from "./pages/Lores.tsx";
 import Owners from "./pages/Owners.tsx";
-import Mythologies from "./pages/Mythologies.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Nav from "./components/Nav.tsx";
+import LorePage from "./pages/lore/LorePage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -23,7 +23,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/lores" element={<Lores />} />
           <Route path="/owners" element={<Owners />} />
-          <Route path="/lores/mythologies" element={<Mythologies />} />
+          <Route path="/lores/:slug" element={<LorePage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
