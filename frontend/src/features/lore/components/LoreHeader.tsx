@@ -1,8 +1,9 @@
 interface LoreHeaderProps {
   title: string;
+  description?: string | null;
 }
 
-const LoreHeader = ({ title }: LoreHeaderProps) => {
+const LoreHeader = ({ title, description }: LoreHeaderProps) => {
   return (
     <>
       <header className="mx-auto mb-16 max-w-4xl text-center">
@@ -21,6 +22,12 @@ const LoreHeader = ({ title }: LoreHeaderProps) => {
         </h2>
         <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary-light/40" />
       </div>
+
+      {description && (
+        <p className="mt-3 mb-6 max-w-xl text-center font-mono text-xs leading-relaxed text-muted-foreground/50">
+          {description}
+        </p>
+      )}
     </>
   );
 };

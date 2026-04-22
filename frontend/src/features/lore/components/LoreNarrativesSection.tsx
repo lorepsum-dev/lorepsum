@@ -115,15 +115,7 @@ const LoreNarrativesSection = ({
 }: LoreNarrativesSectionProps) => {
   return (
     <>
-      <div className="mb-2 flex w-full max-w-5xl items-center gap-4">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary-light/40" />
-        <h2 className="font-display text-2xl font-bold uppercase tracking-[0.35em] text-gradient-purple">
-          history
-        </h2>
-        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary-light/40" />
-      </div>
-
-      <div className="narrative-scroll mt-10 w-full max-w-3xl flex-1 overflow-y-auto pr-2">
+      <div className="narrative-scroll w-full max-w-3xl flex-1 overflow-y-auto pr-2">
         {narratives.length > 0 ? (
           <NarrativeAccordion
             narratives={narratives}

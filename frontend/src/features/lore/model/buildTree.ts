@@ -30,5 +30,12 @@ export function buildTree(entities: Entity[], relationships: Relationship[]): Tr
     };
   };
 
-  return roots.sort((a, b) => a.id - b.id).map((root) => buildNode(root));
+  const sortedRoots = roots.sort((a, b) => a.id - b.id);
+  const result: TreeNode[] = [];
+  for (const root of sortedRoots) {
+    if (!placed.has(root.id)) {
+      result.push(buildNode(root));
+    }
+  }
+  return result;
 }

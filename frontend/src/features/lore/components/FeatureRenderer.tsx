@@ -1,4 +1,5 @@
 import type { MouseEvent, ReactNode, RefObject } from "react";
+import LoreCardsSection from "./LoreCardsSection";
 import LoreNarrativesSection from "./LoreNarrativesSection";
 import LoreTreeSection from "./LoreTreeSection";
 import type { Entity, LoreFeature, Narrative, TreeNode } from "../model/types";
@@ -18,6 +19,13 @@ interface FeatureRendererProps {
 }
 
 const featureComponents = {
+  cards: ({ entities, onSelectEntity, isTreeLoading }: FeatureRendererProps) => (
+    <LoreCardsSection
+      entities={entities}
+      isLoading={isTreeLoading}
+      onSelectEntity={onSelectEntity}
+    />
+  ),
   tree: ({
     forest,
     isTreeLoading,

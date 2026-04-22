@@ -59,7 +59,7 @@ const TreeNodeElement = ({
             className="h-6 w-px animate-in fade-in bg-primary-light/20 duration-500"
             style={{ animationDelay: `${lineDelay}ms`, animationFillMode: "both" }}
           />
-          <div className="flex gap-6">
+          <div className="flex gap-3">
             {node.children.map((child, index) => {
               const isFirst = index === 0;
               const isLast = index === node.children.length - 1;
@@ -115,23 +115,19 @@ const LoreTreeSection = ({
 }: LoreTreeSectionProps) => {
   return (
     <>
-      <p className="mb-10 font-mono text-xs uppercase tracking-[0.3em] text-primary-light/40">
-        Simple Genealogical Tree
-      </p>
-
       {isLoading ? (
         <Skeleton className="h-12 w-32 rounded-lg" />
       ) : (
         <div
           ref={scrollRef}
-          className="tree-scroll mx-auto w-full max-w-3xl select-none overflow-x-auto rounded-xl pb-2"
+          className="tree-scroll mx-auto w-full max-w-3xl select-none overflow-x-auto overflow-y-auto rounded-xl pb-2 flex-1 min-h-0"
           style={{ cursor: "grab" }}
           onMouseDown={onMouseDown}
           onMouseMove={onMouseMove}
           onMouseUp={onMouseUp}
           onMouseLeave={onMouseUp}
         >
-          <div className="flex min-w-max justify-center gap-16 px-16 py-8">
+          <div className="flex min-w-max justify-center gap-6 px-8 py-6">
             {forest.map((root, index) => (
               <TreeNodeElement
                 key={root.entity.id}
