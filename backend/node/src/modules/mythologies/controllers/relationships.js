@@ -1,16 +1,14 @@
-const RelationshipRepository = require('../repositories/relationships')
+const loreRelationshipsController = require('../../lores/controllers/relationships');
 
-const RelationshipController = {
+const relationshipController = {
     async listAll(req, res) {
-        try {
-            const data = await RelationshipRepository.findAll()
-            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' })
-            res.end(JSON.stringify({ status: 'success', relationships: data }))
-        } catch (error) {
-            res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' })
-            res.end(JSON.stringify({ status: 'error', msg: 'Erro ao buscar relações' }))
-        }
-    }
-}
+        req.params = {
+            ...req.params,
+            slug: 'mythologies'
+        };
 
-module.exports = RelationshipController
+        return loreRelationshipsController.listByLoreSlug(req, res);
+    }
+};
+
+module.exports = relationshipController;

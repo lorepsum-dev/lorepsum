@@ -1,16 +1,14 @@
-const narratives = require('../repositories/narratives');
+const loreNarrativesController = require('../../lores/controllers/narratives');
 
-const NarrativeController = {
-  async listAll(req, res) {
-    try {
-      const data = await narratives.findAll();
-      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify({ status: 'success', narratives: data }));
-    } catch (error) {
-      res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify({ status: 'error', msg: 'Erro ao buscar narrativas' }));
+const narrativeController = {
+    async listAll(req, res) {
+        req.params = {
+            ...req.params,
+            slug: 'mythologies'
+        };
+
+        return loreNarrativesController.listByLoreSlug(req, res);
     }
-  }
 };
 
-module.exports = NarrativeController;
+module.exports = narrativeController;

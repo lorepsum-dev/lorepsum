@@ -3,9 +3,9 @@ const ownersRoutes = require('./modules/owners/routes')
 const loresRoutes = require('./modules/lores/routes')
 
 const routes = [
-    ...mythologiesRoutes,
-    ...ownersRoutes,
     ...loresRoutes,
+    ...ownersRoutes,
+    ...mythologiesRoutes,
 ]
 
 module.exports = routes

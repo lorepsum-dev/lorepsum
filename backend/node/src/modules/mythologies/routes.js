@@ -35,7 +35,7 @@ const routes = [
     handler: EntityController.findBy,
     getParams: (match) => ({
       field: match[1],
-      value: match[2]
+      value: decodeURIComponent(match[2])
     })
   }
 ]

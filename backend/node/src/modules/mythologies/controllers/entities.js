@@ -1,72 +1,27 @@
-const entities = require('../repositories/entities');
+const loreEntitiesController = require('../../lores/controllers/entities');
 
-const  EntityController = {
-    async listAll(req, res){
-        try {
-            const data = await entities.findAll();
-            res.writeHead(200, {'Content-Type': 'application/json; charset=utf-8'})
-            res.end(JSON.stringify({
-                status: 'success',
-                results: data.length,
-                entities: data
-            }))
-        }              
-        catch(error){
-            res.writeHead(500, {'Content-Type': 'application/json; charset=utf-8'})
-            res.end(JSON.stringify({
-            status: 'error',
-            msg: 'Tremor no Submundo! (erro de conexão)'
-            }))
-        }
-
-    },
-    
-    async findBy(req, res){
-        try{
-
-            const {field, value} =  req.params
-
-            const data = await entities.findBy(field, value)
-            res.writeHead(200, {'Content-Type':'application/json; charset=utf-8'})
-            res.end(JSON.stringify({
-                status: 'success',
-                entities: data
-            }))
-        }
-        catch(error){
-            
-            res.writeHead(500, {'Content-Type': 'application/json; charset=utf-8'})
-            res.end(JSON.stringify({
-            status: 'error',
-            msg: 'Personagem no Hades! (erro de conexão)'
-            }))
-        }
-    },
-
-    async byId(req, res){
-        try{
-            const value = req.params.id
-            
-            const data = await entities.findById(value);
-            res.writeHead(200, {'Content-Type':'application/json; charset=utf-8'})
-            res.end(JSON.stringify({
-                status: 'success',
-                entities: data
-            }))
-        }
-        catch(error){
-            console.error(error.message)
-            res.writeHead(500, {'Content-Type': 'application/json; charset=utf-8'})
-            res.end(JSON.stringify({
-            status: 'error',
-            msg: 'Personagem no Hades! (erro de conexão)'
-            }))
-        }
-    }
-
+function withMythologiesSlug(req) {
+    req.params = {
+        ...req.params,
+        slug: 'mythologies'
+    };
 }
 
+const entityController = {
+    async listAll(req, res) {
+        withMythologiesSlug(req);
+        return loreEntitiesController.listByLoreSlug(req, res);
+    },
 
+    async findBy(req, res) {
+        withMythologiesSlug(req);
+        return loreEntitiesController.findBy(req, res);
+    },
 
+    async byId(req, res) {
+        withMythologiesSlug(req);
+        return loreEntitiesController.byId(req, res);
+    }
+};
 
-module.exports = EntityController
+module.exports = entityController;
