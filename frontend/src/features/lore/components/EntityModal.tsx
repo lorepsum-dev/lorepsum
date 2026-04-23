@@ -18,7 +18,7 @@ const EntityModal = ({ entity, entities, relationships, onClose }: EntityModalPr
         onClick={onClose}
       />
 
-      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 animate-in fade-in zoom-in-95 px-4 duration-300">
+      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-[min(24rem,92vw)] -translate-x-1/2 -translate-y-1/2 animate-in fade-in zoom-in-95 px-4 duration-300">
         <button
           onClick={onClose}
           className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-primary-light/15 bg-secondary/80 text-3xl leading-none text-muted-foreground/60 transition hover:border-primary-light/40 hover:text-primary-light"
@@ -27,7 +27,7 @@ const EntityModal = ({ entity, entities, relationships, onClose }: EntityModalPr
         </button>
 
         <div
-          className="card-glow relative flex flex-col rounded-[1.25rem] border border-primary-light/10 p-5"
+          className="card-glow relative flex flex-col rounded-[1.25rem] border border-primary-light/10 p-4 sm:p-5 max-h-[88vh]"
           style={{ background: "var(--gradient-card)" }}
         >
           <div className="mb-4 flex min-h-[24px] items-center">
@@ -44,10 +44,10 @@ const EntityModal = ({ entity, entities, relationships, onClose }: EntityModalPr
             )}
           </div>
 
-          <div className="relative mx-auto mb-5 aspect-square w-full overflow-hidden rounded-xl border border-primary-light/12 bg-secondary/60">
+          <div className="relative mx-auto mb-4 w-full aspect-square max-h-[28vh] sm:max-h-[32vh] overflow-hidden rounded-xl border border-primary-light/12 bg-secondary/60">
             <div className="absolute inset-0 bg-gradient-to-br from-primary-glow/20 via-transparent to-accent/20" />
             {entity.avatar_url ? (
-              <img src={entity.avatar_url} alt={entity.name} className="h-full w-full object-cover" />
+              <img src={entity.avatar_url} alt={entity.name} className="h-full w-full object-cover object-top" />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
                 <span className="font-display text-6xl text-gradient-purple">{modalData.initials}</span>

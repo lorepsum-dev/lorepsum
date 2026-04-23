@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -11,39 +12,77 @@ const links = [
 
 const Nav = () => {
   const { pathname } = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="fixed left-6 top-0 z-50 flex h-screen flex-col justify-center">
-      {/* linha roxa */}
-      <div className="absolute left-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-primary-light/40 to-transparent" />
+    <>
+      {/* Mobile toggle — the purple line is the button */}
+      <button
+        onClick={() => setIsOpen((o) => !o)}
+        aria-label={isOpen ? "Close menu" : "Open menu"}
+        className="fixed left-0 top-0 z-[55] flex h-screen w-5 flex-col items-center justify-center focus:outline-none sm:hidden"
+      >
+        <div className="h-full w-px bg-gradient-to-b from-transparent via-primary-light/50 to-transparent" />
+        <span
+          className={cn(
+            "absolute text-[10px] text-primary-light transition-all duration-300 drop-shadow-[0_0_8px_hsl(var(--primary-light))]",
+            isOpen ? "opacity-0 scale-75" : "opacity-70 scale-100",
+          )}
+        >
+          ✦
+        </span>
+      </button>
 
-      <div className="flex flex-col gap-10 pl-5">
-        {links.map((link) => {
-          const active = link.to === "/lores"
-            ? pathname === "/lores" || pathname.startsWith("/lores/")
-            : pathname === link.to;
-          return (
-            <div key={link.to} className="relative flex items-center gap-3">
-              <span className={cn(
-                "absolute -left-5 top-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-light text-sm leading-none drop-shadow-[0_0_6px_hsl(var(--primary-light))] transition-opacity duration-500",
-                active ? "opacity-100" : "opacity-0"
-              )}>
-                ✦
-              </span>
-              <Link
-                to={link.to}
-                className={cn(
-                  "font-display text-xs uppercase tracking-[0.3em] transition-colors",
-                  active ? "text-primary-light" : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {link.label}
-              </Link>
-            </div>
-          );
-        })}
-      </div>
-    </nav>
+      {/* Blur overlay — mobile only, when open */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-[45] bg-background/40 backdrop-blur-sm sm:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Nav panel */}
+      <nav
+        className={cn(
+          "fixed left-6 top-0 z-50 flex h-screen flex-col justify-center transition-all duration-300",
+          "sm:translate-x-0 sm:opacity-100",
+          isOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0",
+        )}
+      >
+        <div className="absolute left-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-primary-light/40 to-transparent" />
+
+        <div className="flex flex-col gap-10 pl-5">
+          {links.map((link) => {
+            const active =
+              link.to === "/lores"
+                ? pathname === "/lores" || pathname.startsWith("/lores/")
+                : pathname === link.to;
+            return (
+              <div key={link.to} className="relative flex items-center gap-3">
+                <span
+                  className={cn(
+                    "absolute -left-5 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm leading-none text-primary-light drop-shadow-[0_0_6px_hsl(var(--primary-light))] transition-opacity duration-500",
+                    active ? "opacity-100" : "opacity-0",
+                  )}
+                >
+                  ✦
+                </span>
+                <Link
+                  to={link.to}
+                  onClick={() => setIsOpen(false)}
+                  className={cn(
+                    "font-display text-xs uppercase tracking-[0.3em] transition-colors",
+                    active ? "text-primary-light" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {link.label}
+                </Link>
+              </div>
+            );
+          })}
+        </div>
+      </nav>
+    </>
   );
 };
 

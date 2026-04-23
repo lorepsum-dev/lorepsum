@@ -120,7 +120,7 @@ const LorePage = () => {
           <section
             key={feature.id}
             ref={(el) => { sectionRefs.current[index] = el; }}
-            className={`grid h-screen w-full grid-rows-[auto_1fr_auto] pl-24 pr-56 ${isFirst ? "pt-16 pb-8" : "py-16"}`}
+            className={`grid h-screen w-full grid-rows-[auto_1fr_auto] pl-4 pr-4 sm:pl-24 sm:pr-56 ${isFirst ? "pt-16 pb-8" : "py-16"}`}
             style={{ scrollSnapAlign: "start" }}
           >
             {/* row 1: header */}
