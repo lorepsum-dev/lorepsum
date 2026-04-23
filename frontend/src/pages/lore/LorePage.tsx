@@ -120,34 +120,36 @@ const LorePage = () => {
           <section
             key={feature.id}
             ref={(el) => { sectionRefs.current[index] = el; }}
-            className={`flex h-screen w-full flex-col items-center pl-24 pr-56 ${isFirst ? "pt-16 pb-0" : "py-16"}`}
+            className={`grid h-screen w-full grid-rows-[auto_1fr_auto] pl-24 pr-56 ${isFirst ? "pt-16 pb-8" : "py-16"}`}
             style={{ scrollSnapAlign: "start" }}
           >
-            {isFirst && (
-              <LoreHeader
-                title={lore?.name ?? safeSlug}
-                description={lore?.description}
-              />
-            )}
+            {/* row 1: header */}
+            <div className="flex w-full flex-col items-center">
+              {isFirst ? (
+                <LoreHeader
+                  title={lore?.name ?? safeSlug}
+                  description={lore?.description}
+                />
+              ) : (
+                <>
+                  <div className="mb-2 flex w-full max-w-5xl items-center gap-4">
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary-light/40" />
+                    <h2 className="font-display text-2xl font-bold uppercase tracking-[0.35em] text-gradient-purple">
+                      {feature.name}
+                    </h2>
+                    <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary-light/40" />
+                  </div>
+                  {feature.description && (
+                    <p className="mt-3 mb-6 max-w-xl text-center font-mono text-xs leading-relaxed text-muted-foreground/50">
+                      {feature.description}
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
 
-            {!isFirst && (
-              <>
-                <div className="mb-2 flex w-full max-w-5xl items-center gap-4">
-                  <div className="h-px flex-1 bg-gradient-to-r from-transparent to-primary-light/40" />
-                  <h2 className="font-display text-2xl font-bold uppercase tracking-[0.35em] text-gradient-purple">
-                    {feature.name}
-                  </h2>
-                  <div className="h-px flex-1 bg-gradient-to-l from-transparent to-primary-light/40" />
-                </div>
-                {feature.description && (
-                  <p className="mt-3 mb-6 max-w-xl text-center font-mono text-xs leading-relaxed text-muted-foreground/50">
-                    {feature.description}
-                  </p>
-                )}
-              </>
-            )}
-
-            <div className="flex-1 min-h-0 flex w-full flex-col items-center">
+            {/* row 2: feature content */}
+            <div className="min-h-0 w-full flex flex-col items-center overflow-hidden">
               <FeatureRenderer
                 feature={feature}
                 forest={forest}
@@ -163,48 +165,51 @@ const LorePage = () => {
               />
             </div>
 
-            {nextFeature && (
-              <button
-                onClick={() => scrollToSection(index + 1)}
-                className="group mb-8 flex flex-col items-center gap-2 cursor-pointer focus:outline-none"
-                aria-label={`View ${nextFeature.name}`}
-              >
-                <span className="font-display text-xs uppercase tracking-[0.5em] text-primary-light/50 transition-colors duration-300 group-hover:text-primary-light/90">
-                  {nextFeature.name}
-                </span>
-                <div className="flex animate-bounce flex-col items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="28"
-                    height="28"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-primary-light/50 transition-colors duration-300 drop-shadow-[0_0_8px_hsl(var(--primary-light)/0.4)] group-hover:text-primary-light group-hover:drop-shadow-[0_0_14px_hsl(var(--primary-light)/0.7)]"
-                  >
-                    <path d="M12 5v14" />
-                    <path d="m19 12-7 7-7-7" />
-                  </svg>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="-mt-3 text-primary-light/20 transition-colors duration-300 group-hover:text-primary-light/50"
-                  >
-                    <path d="m19 12-7 7-7-7" />
-                  </svg>
-                </div>
-              </button>
-            )}
+            {/* row 3: next section CTA */}
+            <div className="flex items-center justify-center">
+              {nextFeature && (
+                <button
+                  onClick={() => scrollToSection(index + 1)}
+                  className="group flex flex-col items-center gap-2 cursor-pointer focus:outline-none"
+                  aria-label={`View ${nextFeature.name}`}
+                >
+                  <span className="font-display text-xs uppercase tracking-[0.5em] text-primary-light/50 transition-colors duration-300 group-hover:text-primary-light/90">
+                    {nextFeature.name}
+                  </span>
+                  <div className="flex animate-bounce flex-col items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="28"
+                      height="28"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-primary-light/50 transition-colors duration-300 drop-shadow-[0_0_8px_hsl(var(--primary-light)/0.4)] group-hover:text-primary-light group-hover:drop-shadow-[0_0_14px_hsl(var(--primary-light)/0.7)]"
+                    >
+                      <path d="M12 5v14" />
+                      <path d="m19 12-7 7-7-7" />
+                    </svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="-mt-3 text-primary-light/20 transition-colors duration-300 group-hover:text-primary-light/50"
+                    >
+                      <path d="m19 12-7 7-7-7" />
+                    </svg>
+                  </div>
+                </button>
+              )}
+            </div>
           </section>
         );
       })}
