@@ -1,15 +1,22 @@
 import { getRelationLabel, mapEntityModal } from "../model/mapEntityModal";
-import type { Entity, Relationship } from "../model/types";
+import type { Entity, LorePresentation, Relationship } from "../model/types";
 
 interface EntityModalProps {
   entity: Entity;
   entities: Entity[];
   relationships: Relationship[];
+  presentation: LorePresentation;
   onClose: () => void;
 }
 
-const EntityModal = ({ entity, entities, relationships, onClose }: EntityModalProps) => {
-  const modalData = mapEntityModal(entity, relationships, entities);
+function EntityModal({
+  entity,
+  entities,
+  relationships,
+  presentation,
+  onClose,
+}: EntityModalProps) {
+  const modalData = mapEntityModal(entity, relationships, entities, presentation);
 
   return (
     <>
@@ -27,7 +34,7 @@ const EntityModal = ({ entity, entities, relationships, onClose }: EntityModalPr
         </button>
 
         <div
-          className="card-glow relative flex flex-col rounded-[1.25rem] border border-primary-light/10 p-4 sm:p-5 max-h-[88vh]"
+          className="card-glow relative flex max-h-[88vh] flex-col rounded-[1.25rem] border border-primary-light/10 p-4 sm:p-5"
           style={{ background: "var(--gradient-card)" }}
         >
           <div className="mb-4 flex min-h-[24px] items-center">
@@ -44,10 +51,10 @@ const EntityModal = ({ entity, entities, relationships, onClose }: EntityModalPr
             )}
           </div>
 
-          <div className="relative mx-auto mb-4 w-full aspect-square max-h-[28vh] sm:max-h-[32vh] overflow-hidden rounded-xl border border-primary-light/12 bg-secondary/60">
+          <div className="relative mx-auto mb-4 aspect-square max-h-[28vh] w-full overflow-hidden rounded-xl border border-primary-light/12 bg-secondary/60 sm:max-h-[32vh]">
             <div className="absolute inset-0 bg-gradient-to-br from-primary-glow/20 via-transparent to-accent/20" />
-            {entity.avatar_url ? (
-              <img src={entity.avatar_url} alt={entity.name} className="h-full w-full object-cover object-top" />
+            {entity.avatarUrl ? (
+              <img src={entity.avatarUrl} alt={entity.name} className="h-full w-full object-cover object-top" />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
                 <span className="font-display text-6xl text-gradient-purple">{modalData.initials}</span>
@@ -71,10 +78,10 @@ const EntityModal = ({ entity, entities, relationships, onClose }: EntityModalPr
             <div className="mb-3 flex flex-wrap justify-center gap-1.5">
               {modalData.relatedEntities.map((relationship) => (
                 <span
-                  key={`${relationship.type}-${relationship.entity.id}`}
+                  key={`${relationship.kind}-${relationship.entity.id}`}
                   className="rounded-full border border-primary-light/15 px-2.5 py-0.5 text-[10px] font-mono text-primary-light/50"
                 >
-                  {getRelationLabel(relationship.type)}: {relationship.entity.name}
+                  {getRelationLabel(relationship.kind)}: {relationship.entity.name}
                 </span>
               ))}
             </div>
@@ -126,6 +133,6 @@ const EntityModal = ({ entity, entities, relationships, onClose }: EntityModalPr
       </div>
     </>
   );
-};
+}
 
 export default EntityModal;

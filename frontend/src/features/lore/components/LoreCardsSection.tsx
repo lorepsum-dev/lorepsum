@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEntityCarousel } from "../hooks/useEntityCarousel";
 import type { Entity } from "../model/types";
+import EntityCarouselDesktop from "./cards/EntityCarouselDesktop";
+import EntityCarouselMobile from "./cards/EntityCarouselMobile";
 
 interface LoreCardsSectionProps {
   entities: Entity[];
@@ -11,250 +14,119 @@ interface LoreCardsSectionProps {
 
 const COMPACT_THRESHOLD = 450;
 
-const EntityCard = ({
-  entity,
-  position,
-  onSelect,
-  compact,
-}: {
-  entity: Entity;
-  position: "left" | "center" | "right";
-  onSelect: () => void;
-  compact: boolean;
-}) => {
-  const isCenter = position === "center";
-  const initials = entity.name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-
-  return (
-    <button
-      onClick={onSelect}
-      className={cn(
-        "flex shrink-0 flex-col items-center rounded-xl border transition-all duration-300 focus:outline-none",
-        compact ? "w-40 gap-2 px-4 py-4" : "w-52 gap-3 px-6 py-7",
-        isCenter
-          ? "scale-105 border-primary-light/40 bg-primary/10 opacity-100 shadow-[0_0_20px_hsl(var(--primary-light)/0.12)]"
-          : "scale-95 border-primary-light/10 bg-transparent opacity-40 hover:opacity-55",
-      )}
-    >
-      <div
-        className={cn(
-          "flex items-center justify-center rounded-full border font-display font-bold",
-          compact ? "h-12 w-12 text-base" : "h-16 w-16 text-lg",
-          isCenter
-            ? "border-primary-light/50 text-primary-light"
-            : "border-primary-light/20 text-primary-light/40",
-        )}
-      >
-        {entity.avatar_url ? (
-          <img
-            src={entity.avatar_url}
-            alt={entity.name}
-            className="h-full w-full rounded-full object-cover"
-          />
-        ) : (
-          initials
-        )}
-      </div>
-
-      <span
-        className={cn(
-          "text-center font-display text-sm font-semibold leading-tight",
-          isCenter ? "text-foreground" : "text-foreground/40",
-        )}
-      >
-        {entity.name}
-      </span>
-
-      {!compact && isCenter && entity.origin && (
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary-light/40">
-          {entity.origin}
-        </span>
-      )}
-
-      {!compact && isCenter && entity.description && (
-        <p className="line-clamp-3 text-center font-mono text-[11px] leading-relaxed text-muted-foreground/55">
-          {entity.description}
-        </p>
-      )}
-    </button>
-  );
-};
-
-const LoreCardsSection = ({
+function LoreCardsSection({
   entities,
   isLoading,
   onSelectEntity,
-}: LoreCardsSectionProps) => {
-  const [centerIndex, setCenterIndex] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
+}: LoreCardsSectionProps) {
   const [compact, setCompact] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const mobileScrollRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const isProgrammaticScroll = useRef(false);
+  const {
+    centerIndex,
+    searchQuery,
+    visibleCards,
+    canGoLeft,
+    canGoRight,
+    selectIndex,
+    goToPrevious,
+    goToNext,
+    handleSearch,
+  } = useEntityCarousel(entities, onSelectEntity);
 
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
+    const element = containerRef.current;
+
+    if (!element) {
+      return;
+    }
+
     const observer = new ResizeObserver(([entry]) => {
       setCompact(entry.contentRect.height < COMPACT_THRESHOLD);
     });
-    observer.observe(el);
+
+    observer.observe(element);
+
     return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    const mediaQuery = window.matchMedia("(max-width: 640px)");
+    setIsMobile(mediaQuery.matches);
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsMobile(event.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
   useEffect(() => {
-    if (!isMobile) return;
-    const el = cardRefs.current.get(centerIndex);
-    if (!el) return;
+    if (!isMobile) {
+      return;
+    }
+
+    const currentCard = cardRefs.current.get(centerIndex);
+
+    if (!currentCard) {
+      return;
+    }
+
     isProgrammaticScroll.current = true;
-    el.scrollIntoView({ behavior: "smooth", block: "center" });
-    const t = setTimeout(() => { isProgrammaticScroll.current = false; }, 700);
-    return () => clearTimeout(t);
+    currentCard.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    const timeout = setTimeout(() => {
+      isProgrammaticScroll.current = false;
+    }, 700);
+
+    return () => clearTimeout(timeout);
   }, [centerIndex, isMobile]);
 
   const handleMobileScroll = useCallback(() => {
-    if (!mobileScrollRef.current || isProgrammaticScroll.current || entities.length === 0) return;
+    if (!mobileScrollRef.current || isProgrammaticScroll.current || entities.length === 0) {
+      return;
+    }
+
     const { scrollTop, scrollHeight } = mobileScrollRef.current;
     const slotHeight = scrollHeight / entities.length;
-    const newIndex = Math.max(0, Math.min(Math.round(scrollTop / slotHeight), entities.length - 1));
-    if (newIndex !== centerIndex) {
-      setCenterIndex(newIndex);
-      onSelectEntity(entities[newIndex].id);
+    const nextIndex = Math.max(0, Math.min(Math.round(scrollTop / slotHeight), entities.length - 1));
+
+    if (nextIndex !== centerIndex) {
+      selectIndex(nextIndex);
     }
-  }, [centerIndex, entities, onSelectEntity]);
+  }, [centerIndex, entities.length, selectIndex]);
 
-  const handleSearch = useCallback(
-    (query: string) => {
-      setSearchQuery(query);
-      if (!query.trim()) return;
-      const idx = entities.findIndex((e) =>
-        e.name.toLowerCase().includes(query.toLowerCase()),
-      );
-      if (idx !== -1) setCenterIndex(idx);
-    },
-    [entities],
-  );
-
-  const canGoLeft = centerIndex > 0;
-  const canGoRight = centerIndex < entities.length - 1;
-
-  const visibleCards = (): Array<{ entity: Entity; position: "left" | "center" | "right" }> => {
-    if (entities.length === 0) return [];
-
-    if (entities.length === 1) {
-      return [{ entity: entities[0], position: "center" }];
+  const setCardRef = useCallback((index: number, element: HTMLDivElement | null) => {
+    if (element) {
+      cardRefs.current.set(index, element);
+      return;
     }
 
-    if (entities.length === 2) {
-      if (centerIndex === 0) {
-        return [
-          { entity: entities[0], position: "center" },
-          { entity: entities[1], position: "right" },
-        ];
-      }
-      return [
-        { entity: entities[0], position: "left" },
-        { entity: entities[1], position: "center" },
-      ];
-    }
+    cardRefs.current.delete(index);
+  }, []);
 
-    const result: Array<{ entity: Entity; position: "left" | "center" | "right" }> = [];
-    if (centerIndex > 0) result.push({ entity: entities[centerIndex - 1], position: "left" });
-    result.push({ entity: entities[centerIndex], position: "center" });
-    if (centerIndex < entities.length - 1) result.push({ entity: entities[centerIndex + 1], position: "right" });
-    return result;
-  };
-
-  const cards = visibleCards();
   const dotCount = Math.min(entities.length, 3);
   const hasDots = dotCount > 1;
 
   if (isMobile && !isLoading) {
     return (
-      <div className="flex h-full w-full flex-col items-center gap-4 pt-2">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => handleSearch(e.target.value)}
-          placeholder="search entity..."
-          className="w-full max-w-[200px] shrink-0 rounded-lg border border-primary-light/15 bg-transparent px-4 py-2 font-mono text-xs tracking-wide text-foreground placeholder:text-muted-foreground/30 transition-colors focus:border-primary-light/40 focus:outline-none"
-        />
-
-        <div className="flex min-h-0 w-full flex-1 items-center justify-center gap-3 px-4">
-          {/* Vertical scroll-snap container */}
-          <div
-            ref={mobileScrollRef}
-            onScroll={handleMobileScroll}
-            className="flex-1 overflow-y-scroll"
-            style={{
-              scrollSnapType: "y mandatory",
-              scrollbarWidth: "none",
-              maskImage: "linear-gradient(to bottom, transparent 0%, black 22%, black 78%, transparent 100%)",
-              WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 22%, black 78%, transparent 100%)",
-            }}
-          >
-            {entities.map((entity, index) => (
-              <div
-                key={entity.id}
-                ref={(el) => {
-                  if (el) cardRefs.current.set(index, el);
-                  else cardRefs.current.delete(index);
-                }}
-                className="flex shrink-0 items-center justify-center py-3"
-                style={{ scrollSnapAlign: "center" }}
-              >
-                <EntityCard
-                  entity={entity}
-                  position={index === centerIndex ? "center" : "left"}
-                  onSelect={() => {
-                    setCenterIndex(index);
-                    onSelectEntity(entity.id);
-                  }}
-                  compact={true}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Vertical dots */}
-          {hasDots && (
-            <div className="flex flex-col items-center gap-1.5">
-              {dotCount === 2 ? (
-                [0, 1].map((i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      "rounded-full transition-all duration-300",
-                      i === centerIndex ? "h-4 w-1.5 bg-primary-light/70" : "h-1.5 w-1.5 bg-primary-light/20",
-                    )}
-                  />
-                ))
-              ) : (
-                <>
-                  <div className={cn("rounded-full transition-all duration-300", canGoLeft ? "h-1.5 w-1.5 bg-primary-light/30" : "h-1 w-1 bg-primary-light/10")} />
-                  <div className="h-4 w-1.5 rounded-full bg-primary-light/70" />
-                  <div className={cn("rounded-full transition-all duration-300", canGoRight ? "h-1.5 w-1.5 bg-primary-light/30" : "h-1 w-1 bg-primary-light/10")} />
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+      <EntityCarouselMobile
+        entities={entities}
+        centerIndex={centerIndex}
+        searchQuery={searchQuery}
+        canGoLeft={canGoLeft}
+        canGoRight={canGoRight}
+        onSearch={handleSearch}
+        onScroll={handleMobileScroll}
+        setCardRef={setCardRef}
+        onSelectIndex={selectIndex}
+        scrollRef={mobileScrollRef}
+      />
     );
   }
 
@@ -275,72 +147,27 @@ const LoreCardsSection = ({
         </>
       ) : (
         <>
-          {/* Search */}
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            placeholder="search entity..."
-            className="w-full max-w-[200px] rounded-lg border border-primary-light/15 bg-transparent px-4 py-2 font-mono text-xs tracking-wide text-foreground placeholder:text-muted-foreground/30 transition-colors focus:border-primary-light/40 focus:outline-none"
+          <EntityCarouselDesktop
+            searchQuery={searchQuery}
+            onSearch={handleSearch}
+            canGoLeft={canGoLeft}
+            canGoRight={canGoRight}
+            visibleCards={visibleCards}
+            onPrevious={goToPrevious}
+            onNext={goToNext}
+            onSelect={onSelectEntity}
+            compact={compact}
           />
 
-          {/* Carousel */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setCenterIndex((i) => i - 1)}
-              disabled={!canGoLeft}
-              aria-label="Previous entity"
-              className={cn(
-                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-200 focus:outline-none",
-                canGoLeft
-                  ? "border-primary-light/30 text-primary-light/60 hover:border-primary-light/60 hover:text-primary-light"
-                  : "cursor-not-allowed border-primary-light/10 text-primary-light/15",
-              )}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m15 18-6-6 6-6" />
-              </svg>
-            </button>
-
-            <div className="flex items-center gap-4">
-              {cards.map(({ entity, position }) => (
-                <EntityCard
-                  key={entity.id}
-                  entity={entity}
-                  position={position}
-                  onSelect={() => onSelectEntity(entity.id)}
-                  compact={compact}
-                />
-              ))}
-            </div>
-
-            <button
-              onClick={() => setCenterIndex((i) => i + 1)}
-              disabled={!canGoRight}
-              aria-label="Next entity"
-              className={cn(
-                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-200 focus:outline-none",
-                canGoRight
-                  ? "border-primary-light/30 text-primary-light/60 hover:border-primary-light/60 hover:text-primary-light"
-                  : "cursor-not-allowed border-primary-light/10 text-primary-light/15",
-              )}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m9 18 6-6-6-6" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Indicator dots */}
           {hasDots && (
             <div className="mt-5 flex items-center gap-2">
               {dotCount === 2 ? (
-                [0, 1].map((i) => (
+                [0, 1].map((index) => (
                   <div
-                    key={i}
+                    key={index}
                     className={cn(
                       "rounded-full transition-all duration-300",
-                      i === centerIndex
+                      index === centerIndex
                         ? "h-1.5 w-4 bg-primary-light/70"
                         : "h-1.5 w-1.5 bg-primary-light/20",
                     )}
@@ -359,6 +186,6 @@ const LoreCardsSection = ({
       )}
     </div>
   );
-};
+}
 
 export default LoreCardsSection;

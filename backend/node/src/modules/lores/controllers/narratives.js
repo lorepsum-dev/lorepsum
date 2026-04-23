@@ -1,5 +1,5 @@
 const narrativesService = require('../services/narratives');
-const { sendJson } = require('../utils/responses');
+const { sendJson } = require('../../../utils/responses');
 
 const narrativesController = {
     async listByLoreSlug(req, res) {
@@ -21,6 +21,7 @@ const narrativesController = {
             });
         } catch (error) {
             console.error(error);
+
             return sendJson(res, 500, {
                 status: 'error',
                 message: 'Failed to load lore narratives'

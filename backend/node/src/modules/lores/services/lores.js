@@ -1,8 +1,6 @@
 const loresRepository = require('../repositories/lores');
-
-async function getLoreOrNull(slug) {
-    return loresRepository.findBySlug(slug);
-}
+const { getLorePresentation } = require('../config/presentation');
+const { getLoreOrNull } = require('./context');
 
 const loresService = {
     async listAll() {
@@ -24,7 +22,8 @@ const loresService = {
         return {
             ...lore,
             features,
-            sidebar_groups: sidebarGroups
+            sidebar_groups: sidebarGroups,
+            presentation: getLorePresentation(slug)
         };
     },
 

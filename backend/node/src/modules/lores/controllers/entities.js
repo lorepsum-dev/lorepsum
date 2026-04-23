@@ -1,5 +1,5 @@
 const entitiesService = require('../services/entities');
-const { sendJson } = require('../utils/responses');
+const { sendJson } = require('../../../utils/responses');
 
 const entitiesController = {
     async listByLoreSlug(req, res) {
@@ -21,6 +21,7 @@ const entitiesController = {
             });
         } catch (error) {
             console.error(error);
+
             return sendJson(res, 500, {
                 status: 'error',
                 message: 'Failed to load lore entities'
@@ -53,6 +54,7 @@ const entitiesController = {
             });
         } catch (error) {
             console.error(error);
+
             return sendJson(res, 500, {
                 status: 'error',
                 message: 'Failed to load lore entity'
@@ -82,18 +84,17 @@ const entitiesController = {
                 entities: data.entities
             });
         } catch (error) {
-            const statusCode = error.message === 'Invalid filter' ? 400 : 500;
-            const message = error.message === 'Invalid filter'
-                ? 'Invalid entity filter'
-                : 'Failed to load lore entities';
+            const isInvalidFilter = error.message === 'Invalid filter';
 
-            if (statusCode === 500) {
+            if (!isInvalidFilter) {
                 console.error(error);
             }
 
-            return sendJson(res, statusCode, {
+            return sendJson(res, isInvalidFilter ? 400 : 500, {
                 status: 'error',
-                message
+                message: isInvalidFilter
+                    ? 'Invalid entity filter'
+                    : 'Failed to load lore entities'
             });
         }
     }

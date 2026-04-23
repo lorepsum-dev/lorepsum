@@ -7,25 +7,23 @@ interface LoreCardListProps {
   isLoading: boolean;
 }
 
-const LoreCardList = ({ lores, isLoading }: LoreCardListProps) => {
+function LoreCardList({ lores, isLoading }: LoreCardListProps) {
   if (isLoading) {
     return <Skeleton className="h-40 w-full rounded-2xl" />;
   }
 
   return (
     <>
-      {lores
-        ?.filter((lore) => lore.slug !== "owners")
-        .map((lore) => (
-          <LoreCard
-            key={lore.id}
-            name={lore.name}
-            description={lore.description}
-            to={`/lores/${lore.slug}`}
-          />
-        ))}
+      {lores?.map((lore) => (
+        <LoreCard
+          key={lore.id}
+          name={lore.name}
+          description={lore.description}
+          to={`/lores/${lore.slug}`}
+        />
+      ))}
     </>
   );
-};
+}
 
 export default LoreCardList;

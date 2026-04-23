@@ -14,11 +14,11 @@ const baseQuery = `
         e.name,
         e.description,
         e.avatar_url,
-        ax.name AS axis,
-        cat.name AS category,
+        ax.name AS axis_label,
+        cat.name AS category_label,
         g.name AS gender,
         o.name AS origin,
-        gr.name AS group,
+        gr.name AS group_label,
         gr.description AS group_description
     FROM lores l
     INNER JOIN origins o

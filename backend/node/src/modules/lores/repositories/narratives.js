@@ -1,4 +1,5 @@
 const SetSchema = require('../../../config/db');
+const { toMetadataKey } = require('../../../utils/keys');
 const pool = SetSchema('public');
 
 const narrativesRepository = {
@@ -19,7 +20,11 @@ const narrativesRepository = {
             ORDER BY n.display_order ASC, n.id ASC
         `, [slug]);
 
-        return rows;
+        return rows.map((row) => ({
+            ...row,
+            category_key: row.category ? toMetadataKey(row.category) : null,
+            category_label: row.category
+        }));
     }
 };
 

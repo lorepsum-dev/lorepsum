@@ -1,50 +1,70 @@
 import type { Entity, Relationship, TreeNode } from "./types";
 
-export function buildTree(entities: Entity[], relationships: Relationship[]): TreeNode[] {
-  const parentRels = relationships.filter((relationship) => relationship.type === "parent");
-  const childIds = new Set(parentRels.map((relationship) => relationship.related_id));
-  const inTree = new Set([
-    ...parentRels.map((relationship) => relationship.entity_id),
-    ...parentRels.map((relationship) => relationship.related_id),
-  ]);
-  const roots = entities.filter((entity) => !childIds.has(entity.id) && inTree.has(entity.id));
-  const placed = new Set<number>();
+const HIERARCHY_RELATIONSHIP_KEY = "parent";
 
-  const primaryParentId = new Map<number, number>();
-  for (const rel of parentRels) {
-    const current = primaryParentId.get(rel.related_id);
-    if (current === undefined || rel.entity_id < current) {
-      primaryParentId.set(rel.related_id, rel.entity_id);
+export function buildTree(entities: Entity[], relationships: Relationship[]): TreeNode[] {
+  const entitiesById = new Map(entities.map((entity) => [entity.id, entity]));
+  const parentLinks = relationships.filter((relationship) => relationship.kind === HIERARCHY_RELATIONSHIP_KEY);
+  const childrenByParentId = new Map<number, number[]>();
+  const parentsByChildId = new Map<number, number[]>();
+
+  for (const relationship of parentLinks) {
+    const childIds = childrenByParentId.get(relationship.entityId) ?? [];
+    childIds.push(relationship.relatedId);
+    childrenByParentId.set(relationship.entityId, childIds);
+
+    const parentIds = parentsByChildId.get(relationship.relatedId) ?? [];
+    parentIds.push(relationship.entityId);
+    parentsByChildId.set(relationship.relatedId, parentIds);
+  }
+
+  const linkedEntityIds = new Set<number>([
+    ...childrenByParentId.keys(),
+    ...parentsByChildId.keys(),
+  ]);
+
+  const rootIds = Array.from(linkedEntityIds)
+    .filter((entityId) => !parentsByChildId.has(entityId))
+    .sort((left, right) => left - right);
+
+  const primaryParentIdByChildId = new Map<number, number>();
+
+  for (const relationship of parentLinks) {
+    const currentParentId = primaryParentIdByChildId.get(relationship.relatedId);
+
+    if (currentParentId === undefined || relationship.entityId < currentParentId) {
+      primaryParentIdByChildId.set(relationship.relatedId, relationship.entityId);
     }
   }
 
-  const buildNode = (entity: Entity): TreeNode => {
-    placed.add(entity.id);
+  const visitedIds = new Set<number>();
 
-    const children = parentRels
-      .filter((relationship) => relationship.entity_id === entity.id)
-      .map((relationship) => entities.find((candidate) => candidate.id === relationship.related_id))
-      .filter((candidate): candidate is Entity => Boolean(candidate))
-      .filter((child) => primaryParentId.get(child.id) === entity.id)
-      .filter((child) => !placed.has(child.id))
-      .map((child) => buildNode(child));
+  const buildNode = (entityId: number): TreeNode | null => {
+    const entity = entitiesById.get(entityId);
+
+    if (!entity || visitedIds.has(entityId)) {
+      return null;
+    }
+
+    visitedIds.add(entityId);
+
+    const children = (childrenByParentId.get(entityId) ?? [])
+      .filter((childId) => primaryParentIdByChildId.get(childId) === entityId)
+      .map((childId) => buildNode(childId))
+      .filter((child): child is TreeNode => child !== null);
+
+    const parents = (parentsByChildId.get(entityId) ?? [])
+      .map((parentId) => entitiesById.get(parentId))
+      .filter((parent): parent is Entity => Boolean(parent));
 
     return {
       entity,
-      parents: parentRels
-        .filter((relationship) => relationship.related_id === entity.id)
-        .map((relationship) => entities.find((candidate) => candidate.id === relationship.entity_id))
-        .filter((candidate): candidate is Entity => Boolean(candidate)),
       children,
+      parents,
     };
   };
 
-  const sortedRoots = roots.sort((a, b) => a.id - b.id);
-  const result: TreeNode[] = [];
-  for (const root of sortedRoots) {
-    if (!placed.has(root.id)) {
-      result.push(buildNode(root));
-    }
-  }
-  return result;
+  return rootIds
+    .map((entityId) => buildNode(entityId))
+    .filter((root): root is TreeNode => root !== null);
 }

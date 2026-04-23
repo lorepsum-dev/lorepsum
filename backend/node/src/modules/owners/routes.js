@@ -1,4 +1,4 @@
-const ownersController = require('../owners/controllers/owners')
+const ownersController = require('./controllers/owners');
 
 const routes = [
     {
@@ -6,6 +6,6 @@ const routes = [
         method: 'GET',
         handler: ownersController.listAll
     }
-]
+];
 
 module.exports = routes;

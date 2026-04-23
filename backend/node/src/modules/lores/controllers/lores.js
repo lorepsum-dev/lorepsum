@@ -1,19 +1,20 @@
 const loresService = require('../services/lores');
-const { sendJson } = require('../utils/responses');
+const { sendJson } = require('../../../utils/responses');
 
 const loresController = {
     async listAll(req, res) {
         try {
             const data = await loresService.listAll();
 
-            sendJson(res, 200, {
+            return sendJson(res, 200, {
                 status: 'success',
                 results: data.length,
                 lores: data
             });
         } catch (error) {
             console.error(error);
-            sendJson(res, 500, {
+
+            return sendJson(res, 500, {
                 status: 'error',
                 message: 'Failed to load lores'
             });
@@ -37,6 +38,7 @@ const loresController = {
             });
         } catch (error) {
             console.error(error);
+
             return sendJson(res, 500, {
                 status: 'error',
                 message: 'Failed to load lore'
@@ -63,6 +65,7 @@ const loresController = {
             });
         } catch (error) {
             console.error(error);
+
             return sendJson(res, 500, {
                 status: 'error',
                 message: 'Failed to load lore features'
@@ -89,6 +92,7 @@ const loresController = {
             });
         } catch (error) {
             console.error(error);
+
             return sendJson(res, 500, {
                 status: 'error',
                 message: 'Failed to load lore sidebar groups'

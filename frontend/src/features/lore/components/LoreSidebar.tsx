@@ -20,7 +20,7 @@ interface EntityListProps {
   onClose?: () => void;
 }
 
-const EntityList = ({ entities, selectedId, onSelect, onClose }: EntityListProps) => {
+function EntityList({ entities, selectedId, onSelect, onClose }: EntityListProps) {
   return (
     <>
       {entities.map((entity, index, collection) => (
@@ -42,9 +42,9 @@ const EntityList = ({ entities, selectedId, onSelect, onClose }: EntityListProps
       ))}
     </>
   );
-};
+}
 
-const LoreSidebar = ({
+function LoreSidebar({
   isLoading,
   entities,
   groupedEntities,
@@ -52,14 +52,13 @@ const LoreSidebar = ({
   sidebarMode,
   onToggleMode,
   onSelect,
-}: LoreSidebarProps) => {
+}: LoreSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      {/* Mobile toggle — vertical tab on the right edge */}
       <button
-        onClick={() => setIsOpen((o) => !o)}
+        onClick={() => setIsOpen((open) => !open)}
         aria-label={isOpen ? "Close entities" : "Open entities"}
         className={cn(
           "fixed right-0 top-1/2 z-[55] flex -translate-y-1/2 flex-col items-center gap-1.5 rounded-l-lg border-y border-l px-1.5 py-3 transition-all duration-300 focus:outline-none sm:hidden",
@@ -76,7 +75,6 @@ const LoreSidebar = ({
         )}
       </button>
 
-      {/* Blur overlay — mobile only, when open */}
       {isOpen && (
         <div
           className="fixed inset-0 z-[35] bg-background/40 backdrop-blur-sm sm:hidden"
@@ -84,10 +82,9 @@ const LoreSidebar = ({
         />
       )}
 
-      {/* Sidebar panel */}
       <aside
         className={cn(
-          "fixed right-6 top-0 z-40 flex h-screen w-48 flex-col pt-16 pb-8 transition-all duration-300",
+          "fixed right-6 top-0 z-40 flex h-screen w-48 flex-col pb-8 pt-16 transition-all duration-300",
           "sm:translate-x-0 sm:opacity-100",
           isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0",
         )}
@@ -116,7 +113,7 @@ const LoreSidebar = ({
             [...Array(6)].map((_, index) => <Skeleton key={index} className="my-1 h-5 w-32" />)
           ) : sidebarMode === "all" ? (
             <EntityList
-              entities={entities.slice().sort((a, b) => a.id - b.id)}
+              entities={entities.slice().sort((left, right) => left.id - right.id)}
               selectedId={selectedId}
               onSelect={onSelect}
               onClose={() => setIsOpen(false)}
@@ -140,6 +137,6 @@ const LoreSidebar = ({
       </aside>
     </>
   );
-};
+}
 
 export default LoreSidebar;

@@ -1,4 +1,5 @@
-import type { Entity, EntityModalData, Relationship } from "./types";
+import { entityHasCategoryValue } from "./categories";
+import type { Entity, EntityModalData, LorePresentation, Relationship } from "./types";
 
 const relationLabels: Record<string, string> = {
   spouse: "Spouse",
@@ -8,43 +9,41 @@ const relationLabels: Record<string, string> = {
   ally: "Ally",
 };
 
-function getBadgeLabel(entity: Entity) {
-  if (entity.categories.habitat?.includes("olympus")) {
-    return "Olympian";
-  }
-
-  if (entity.categories.lineage?.includes("titan")) {
-    return "Titan";
-  }
-
-  if (entity.categories.lineage?.includes("primordial")) {
-    return "Primordial";
+function getBadgeLabel(entity: Entity, presentation: LorePresentation) {
+  for (const rule of presentation.entityModal.badgeRules) {
+    if (entityHasCategoryValue(entity, rule.axisKey, rule.valueKey)) {
+      return rule.label;
+    }
   }
 
   return null;
 }
 
-export function getRelationLabel(type: string) {
-  return relationLabels[type] ?? type;
+export function getRelationLabel(kind: string) {
+  return relationLabels[kind] ?? kind;
 }
 
 export function mapEntityModal(
   entity: Entity,
   relationships: Relationship[],
   entities: Entity[],
+  presentation: LorePresentation,
 ): EntityModalData {
+  const tagAxisKeys = new Set(presentation.entityModal.tagAxisKeys);
+
   const parents = relationships
-    .filter((relationship) => relationship.type === "parent" && relationship.related_id === entity.id)
-    .map((relationship) => entities.find((candidate) => candidate.id === relationship.entity_id))
+    .filter((relationship) => relationship.kind === "parent" && relationship.relatedId === entity.id)
+    .map((relationship) => entities.find((candidate) => candidate.id === relationship.entityId))
     .filter((candidate): candidate is Entity => Boolean(candidate));
 
   const relatedEntities = relationships
-    .filter((relationship) => relationship.type !== "parent" && relationship.entity_id === entity.id)
+    .filter((relationship) => relationship.kind !== "parent" && relationship.entityId === entity.id)
     .map((relationship) => ({
-      type: relationship.type,
-      entity: entities.find((candidate) => candidate.id === relationship.related_id),
+      kind: relationship.kind,
+      label: getRelationLabel(relationship.kind),
+      entity: entities.find((candidate) => candidate.id === relationship.relatedId),
     }))
-    .filter((item): item is { type: string; entity: Entity } => Boolean(item.entity));
+    .filter((relationship): relationship is { kind: string; label: string; entity: Entity } => Boolean(relationship.entity));
 
   return {
     parents,
@@ -55,12 +54,12 @@ export function mapEntityModal(
       .join("")
       .slice(0, 2)
       .toUpperCase(),
-    badgeLabel: getBadgeLabel(entity),
-    tagCategories: Object.entries(entity.categories)
-      .filter(([axis]) => axis === "domain" || axis === "role")
-      .flatMap(([, values]) => values),
-    labeledCategories: Object.entries(entity.categories).filter(
-      ([axis]) => axis !== "domain" && axis !== "role",
-    ),
+    badgeLabel: getBadgeLabel(entity, presentation),
+    tagCategories: entity.categories
+      .filter((categoryAxis) => tagAxisKeys.has(categoryAxis.key))
+      .flatMap((categoryAxis) => categoryAxis.values.map((value) => value.label)),
+    labeledCategories: entity.categories
+      .filter((categoryAxis) => !tagAxisKeys.has(categoryAxis.key))
+      .map((categoryAxis) => [categoryAxis.label, categoryAxis.values.map((value) => value.label)]),
   };
 }

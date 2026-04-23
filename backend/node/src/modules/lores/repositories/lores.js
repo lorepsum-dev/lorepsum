@@ -1,11 +1,21 @@
 const SetSchema = require('../../../config/db');
+const { toFeatureKey, toMetadataKey } = require('../../../utils/keys');
 const pool = SetSchema('public');
+
+const loreCatalogConstraint = `
+    EXISTS (
+        SELECT 1
+        FROM lore_features lf
+        WHERE lf.lore_id = lores.id
+    )
+`;
 
 const loresRepository = {
     async findAll() {
         const { rows } = await pool.query(`
             SELECT id, name, description, slug
             FROM lores
+            WHERE ${loreCatalogConstraint}
             ORDER BY id
         `);
 
@@ -17,6 +27,7 @@ const loresRepository = {
             SELECT id, name, description, slug
             FROM lores
             WHERE slug = $1
+              AND ${loreCatalogConstraint}
             LIMIT 1
         `, [slug]);
 
@@ -37,7 +48,13 @@ const loresRepository = {
             ORDER BY lf.display_order, f.id
         `, [loreId]);
 
-        return rows;
+        return rows.map((row) => ({
+            id: row.id,
+            key: toFeatureKey(row.name),
+            label: row.name,
+            description: row.description,
+            display_order: row.display_order
+        }));
     },
 
     async findSidebarGroupsByLoreId(loreId) {
@@ -58,12 +75,15 @@ const loresRepository = {
 
         return rows.map((row) => ({
             id: row.id,
+            key: `sidebar-group-${row.id}`,
             label: row.label,
             display_order: row.display_order,
+            match_key: toMetadataKey(row.match_value),
             match_value: row.match_value,
             axis: {
                 id: row.axis_id,
-                name: row.axis_name
+                key: toMetadataKey(row.axis_name),
+                label: row.axis_name
             }
         }));
     }

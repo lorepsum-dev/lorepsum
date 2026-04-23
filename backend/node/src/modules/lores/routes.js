@@ -2,12 +2,21 @@ const loresController = require('./controllers/lores');
 const entitiesController = require('./controllers/entities');
 const relationshipsController = require('./controllers/relationships');
 const narrativesController = require('./controllers/narratives');
+const pageController = require('./controllers/page');
 
 const routes = [
     {
         pattern: /^\/lores$/,
         method: 'GET',
         handler: loresController.listAll
+    },
+    {
+        pattern: /^\/lores\/([a-z0-9-]+)\/page$/,
+        method: 'GET',
+        handler: pageController.bySlug,
+        getParams: (match) => ({
+            slug: match[1]
+        })
     },
     {
         pattern: /^\/lores\/([a-z0-9-]+)$/,

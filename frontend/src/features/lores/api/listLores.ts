@@ -1,3 +1,5 @@
+import { fetchJson } from "@/lib/api";
+
 interface LoreListItem {
   id: number;
   name: string;
@@ -5,10 +7,10 @@ interface LoreListItem {
   slug: string;
 }
 
-export async function listLores(): Promise<LoreListItem[]> {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/lores`);
-  const data = await response.json();
+async function listLores(): Promise<LoreListItem[]> {
+  const data = await fetchJson<{ lores: LoreListItem[] }>("/lores");
   return data.lores;
 }
 
+export { listLores };
 export type { LoreListItem };

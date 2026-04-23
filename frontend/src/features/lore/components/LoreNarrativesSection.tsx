@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { Entity, Narrative } from "../model/types";
 
@@ -8,12 +8,15 @@ interface LoreNarrativesSectionProps {
   onSelectEntity: (id: number) => void;
 }
 
-const NarrativeAccordion = ({
+function NarrativeAccordion({
   narratives,
   entities,
   onSelectEntity,
-}: LoreNarrativesSectionProps) => {
+}: LoreNarrativesSectionProps) {
   const [openId, setOpenId] = useState<number | null>(narratives[0]?.id ?? null);
+  const entitiesByName = useMemo(() => new Map(
+    entities.map((entity) => [entity.name.toLowerCase(), entity]),
+  ), [entities]);
 
   const renderContent = (text: string) =>
     text.split(/\*\*(.+?)\*\*/g).map((part, index) => {
@@ -21,7 +24,7 @@ const NarrativeAccordion = ({
         return <span key={index}>{part}</span>;
       }
 
-      const entity = entities.find((candidate) => candidate.name.toLowerCase() === part.toLowerCase());
+      const entity = entitiesByName.get(part.toLowerCase());
 
       if (entity) {
         return (
@@ -54,9 +57,9 @@ const NarrativeAccordion = ({
               className="group flex w-full items-start justify-between gap-4 py-5 text-left focus:outline-none"
             >
               <div className="flex flex-col gap-1">
-                {narrative.category && (
+                {narrative.categoryLabel && (
                   <span className="font-mono text-[10px] uppercase tracking-[0.35em] text-primary-light/30">
-                    {narrative.category}
+                    {narrative.categoryLabel}
                   </span>
                 )}
                 <span
@@ -106,13 +109,13 @@ const NarrativeAccordion = ({
       })}
     </div>
   );
-};
+}
 
-const LoreNarrativesSection = ({
+function LoreNarrativesSection({
   narratives,
   entities,
   onSelectEntity,
-}: LoreNarrativesSectionProps) => {
+}: LoreNarrativesSectionProps) {
   return (
     <>
       <div className="narrative-scroll w-full max-w-3xl flex-1 overflow-y-auto pr-2">
@@ -123,13 +126,13 @@ const LoreNarrativesSection = ({
             onSelectEntity={onSelectEntity}
           />
         ) : (
-          <p className="text-center font-mono text-xs uppercase tracking-[0.3em] text-primary-light/20 italic">
+          <p className="text-center font-mono text-xs italic uppercase tracking-[0.3em] text-primary-light/20">
             to be written.
           </p>
         )}
       </div>
     </>
   );
-};
+}
 
 export default LoreNarrativesSection;

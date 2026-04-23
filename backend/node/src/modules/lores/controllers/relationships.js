@@ -1,5 +1,5 @@
 const relationshipsService = require('../services/relationships');
-const { sendJson } = require('../utils/responses');
+const { sendJson } = require('../../../utils/responses');
 
 const relationshipsController = {
     async listByLoreSlug(req, res) {
@@ -21,6 +21,7 @@ const relationshipsController = {
             });
         } catch (error) {
             console.error(error);
+
             return sendJson(res, 500, {
                 status: 'error',
                 message: 'Failed to load lore relationships'

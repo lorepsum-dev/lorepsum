@@ -1,57 +1,76 @@
-const http = require ('node:http');
+const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
+require('dotenv').config();
 const routes = require('./src/router');
+const { sendJson } = require('./src/utils/responses');
 
+const PORT = Number(process.env.PORT) || 3000;
 
-const server = http.createServer(async (req, res) => {
-    const {url, method} = req
+function getPathname(url = '/') {
+    return new URL(url, 'http://localhost').pathname;
+}
 
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
+function serveAvatar(pathname, res) {
+    const relativePath = pathname.replace(/^\/+/, '');
+    const filePath = path.join(__dirname, 'public', relativePath);
+
+    fs.readFile(filePath, (error, data) => {
+        if (error) {
+            return sendJson(res, 404, {
+                status: 'error',
+                message: 'Asset not found'
+            });
+        }
+
+        res.writeHead(200, { 'Content-Type': 'image/png' });
+        res.end(data);
+    });
+}
+
+const server = http.createServer((req, res) => {
+    const method = req.method ?? 'GET';
+    const pathname = getPathname(req.url);
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
 
     if (method === 'OPTIONS') {
-        res.writeHead(204)
-        return res.end()
+        res.writeHead(204);
+        return res.end();
     }
 
-    if (url.startsWith('/avatars/')) {
-        const filePath = path.join(__dirname, 'public', url)
-        fs.readFile(filePath, (err, data) => {
-            if (err) {
-                res.writeHead(404)
-                return res.end('Not found')
-            }
-            res.writeHead(200, { 'Content-Type': 'image/png' })
-            res.end(data)
-        })
-        return
+    if (pathname.startsWith('/avatars/')) {
+        serveAvatar(pathname, res);
+        return;
     }
 
-    if (url === '/'){
-        res.writeHead(200, ({'Content-Type': 'application/json; charset=utf-8'}))
-        return res.end(JSON.stringify({
-            message:'success'
-        }))
+    if (pathname === '/') {
+        return sendJson(res, 200, {
+            status: 'success',
+            message: 'Lorepsum API online'
+        });
     }
 
     for (const route of routes) {
-      const match = url.match(route.pattern)
+        const match = pathname.match(route.pattern);
 
-      if (!match || method !== route.method) {
-        continue
-      }
-      req.params = route.getParams ? route.getParams(match) : {}
+        if (!match || method !== route.method) {
+            continue;
+        }
 
-      return route.handler(req, res)
+        req.params = route.getParams ? route.getParams(match) : {};
+        req.pathname = pathname;
+
+        return route.handler(req, res);
     }
 
-    res.writeHead(404, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ message: 'Rota nãou encontrada no Lorepsum' }))
+    return sendJson(res, 404, {
+        status: 'error',
+        message: 'Route not found'
+    });
+});
 
-})
-
-server.listen(3000, () => {
-    console.log('API ONLINE!')
-})
-
+server.listen(PORT, () => {
+    console.log(`API online on port ${PORT}`);
+});

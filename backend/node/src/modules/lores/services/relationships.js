@@ -1,9 +1,9 @@
-const loresRepository = require('../repositories/lores');
 const relationshipsRepository = require('../repositories/relationships');
+const { getLoreOrNull } = require('./context');
 
 const relationshipsService = {
     async listByLoreSlug(slug) {
-        const lore = await loresRepository.findBySlug(slug);
+        const lore = await getLoreOrNull(slug);
 
         if (!lore) {
             return null;

@@ -1,18 +1,33 @@
 export interface LoreFeature {
   id: number;
-  name: string;
+  key: string;
+  label: string;
   description: string | null;
-  display_order: number;
+  displayOrder: number;
 }
 
 export interface LoreSidebarGroup {
   id: number;
+  key: string;
   label: string;
-  display_order: number;
-  match_value: string;
+  displayOrder: number;
+  matchKey: string;
+  matchLabel: string;
   axis: {
     id: number;
-    name: string;
+    key: string;
+    label: string;
+  };
+}
+
+export interface LorePresentation {
+  entityModal: {
+    badgeRules: Array<{
+      axisKey: string;
+      valueKey: string;
+      label: string;
+    }>;
+    tagAxisKeys: string[];
   };
 }
 
@@ -22,11 +37,24 @@ export interface Lore {
   description: string;
   slug: string;
   features: LoreFeature[];
-  sidebar_groups: LoreSidebarGroup[];
+  sidebarGroups: LoreSidebarGroup[];
+  presentation: LorePresentation;
+}
+
+export interface EntityCategoryValue {
+  key: string;
+  label: string;
+}
+
+export interface EntityCategoryAxis {
+  key: string;
+  label: string;
+  values: EntityCategoryValue[];
 }
 
 export interface EntityGroup {
-  name: string;
+  key: string;
+  label: string;
   description: string | null;
 }
 
@@ -34,17 +62,17 @@ export interface Entity {
   id: number;
   name: string;
   description: string;
-  avatar_url: string | null;
+  avatarUrl: string | null;
   gender: string | null;
   origin: string | null;
-  categories: Record<string, string[]>;
+  categories: EntityCategoryAxis[];
   groups: EntityGroup[];
 }
 
 export interface Relationship {
-  entity_id: number;
-  related_id: number;
-  type: string;
+  entityId: number;
+  relatedId: number;
+  kind: string;
 }
 
 export interface Narrative {
@@ -53,8 +81,9 @@ export interface Narrative {
   subtitle: string | null;
   slug: string;
   content: string;
-  display_order: number;
-  category: string | null;
+  displayOrder: number;
+  categoryKey: string | null;
+  categoryLabel: string | null;
 }
 
 export interface TreeNode {
@@ -72,11 +101,19 @@ export interface SidebarEntityGroup {
 export interface EntityModalData {
   parents: Entity[];
   relatedEntities: Array<{
-    type: string;
+    kind: string;
+    label: string;
     entity: Entity;
   }>;
   initials: string;
   badgeLabel: string | null;
   tagCategories: string[];
   labeledCategories: Array<[string, string[]]>;
+}
+
+export interface LorePageData {
+  lore: Lore;
+  entities: Entity[];
+  relationships: Relationship[];
+  narratives: Narrative[];
 }

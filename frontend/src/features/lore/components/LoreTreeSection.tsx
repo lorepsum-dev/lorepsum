@@ -9,8 +9,8 @@ interface LoreTreeSectionProps {
   selectedId: number | null;
   onSelect: (id: number) => void;
   scrollRef: RefObject<HTMLDivElement>;
-  onMouseDown: (event: MouseEvent) => void;
-  onMouseMove: (event: MouseEvent) => void;
+  onMouseDown: (event: MouseEvent<HTMLDivElement>) => void;
+  onMouseMove: (event: MouseEvent<HTMLDivElement>) => void;
   onMouseUp: () => void;
 }
 
@@ -21,12 +21,12 @@ interface TreeNodeElementProps {
   delay?: number;
 }
 
-const TreeNodeElement = ({
+function TreeNodeElement({
   node,
   selectedId,
   onSelect,
   delay = 0,
-}: TreeNodeElementProps) => {
+}: TreeNodeElementProps) {
   const hasChildren = node.children.length > 0;
   const isOnly = node.children.length === 1;
   const isSelected = selectedId === node.entity.id;
@@ -80,7 +80,7 @@ const TreeNodeElement = ({
                       />
                     )}
                     <div
-                      className="absolute inset-x-0 top-0 bottom-0 flex justify-center animate-in fade-in duration-400"
+                      className="absolute inset-x-0 bottom-0 top-0 flex animate-in fade-in justify-center duration-400"
                       style={{ animationDelay: `${childDelay}ms`, animationFillMode: "both" }}
                     >
                       <div className="w-px bg-primary-light/20" />
@@ -101,9 +101,9 @@ const TreeNodeElement = ({
       )}
     </div>
   );
-};
+}
 
-const LoreTreeSection = ({
+function LoreTreeSection({
   forest,
   isLoading,
   selectedId,
@@ -112,7 +112,7 @@ const LoreTreeSection = ({
   onMouseDown,
   onMouseMove,
   onMouseUp,
-}: LoreTreeSectionProps) => {
+}: LoreTreeSectionProps) {
   return (
     <>
       {isLoading ? (
@@ -120,7 +120,7 @@ const LoreTreeSection = ({
       ) : (
         <div
           ref={scrollRef}
-          className="tree-scroll mx-auto w-full max-w-3xl select-none overflow-x-auto overflow-y-auto rounded-xl pb-2 flex-1 min-h-0"
+          className="tree-scroll mx-auto min-h-0 w-full max-w-3xl flex-1 select-none overflow-x-auto overflow-y-auto rounded-xl pb-2"
           style={{ cursor: "grab" }}
           onMouseDown={onMouseDown}
           onMouseMove={onMouseMove}
@@ -142,6 +142,6 @@ const LoreTreeSection = ({
       )}
     </>
   );
-};
+}
 
 export default LoreTreeSection;

@@ -1,24 +1,25 @@
-const owners = require('../repositories/owners')
+const owners = require('../repositories/owners');
+const { sendJson } = require('../../../utils/responses');
 
 const ownersController = {
-    async listAll(req, res){
+    async listAll(req, res) {
         try {
-            const data =  await owners.findAll();
-            res.writeHead(200, {'Content-Type':'application/json; charset=utf-8'})
-            res.end(JSON.stringify({
+            const data = await owners.findAll();
+
+            return sendJson(res, 200, {
                 status: 'success',
                 results: data.length,
                 owners: data
-            }))
+            });
         } catch (error) {
-            console.error(error)
-            res.writeHead(400, {'Content-Type':'application/json; charset=utf-8'})
-            res.end(JSON.stringify({
+            console.error(error);
+
+            return sendJson(res, 500, {
                 status: 'error',
-                message: 'Erro de conexão'
-            }))
+                message: 'Failed to load owners'
+            });
         }
     }
-}
+};
 
-module.exports = ownersController
+module.exports = ownersController;

@@ -9,26 +9,26 @@ interface FeatureRendererProps {
   forest: TreeNode[];
   narratives: Narrative[];
   entities: Entity[];
-  isTreeLoading: boolean;
+  isLoading: boolean;
   selectedId: number | null;
   onSelectEntity: (id: number) => void;
   scrollRef: RefObject<HTMLDivElement>;
-  onMouseDown: (event: MouseEvent) => void;
-  onMouseMove: (event: MouseEvent) => void;
+  onMouseDown: (event: MouseEvent<HTMLDivElement>) => void;
+  onMouseMove: (event: MouseEvent<HTMLDivElement>) => void;
   onMouseUp: () => void;
 }
 
 const featureComponents = {
-  cards: ({ entities, onSelectEntity, isTreeLoading }: FeatureRendererProps) => (
+  "entity-cards": ({ entities, isLoading, onSelectEntity }: FeatureRendererProps) => (
     <LoreCardsSection
       entities={entities}
-      isLoading={isTreeLoading}
+      isLoading={isLoading}
       onSelectEntity={onSelectEntity}
     />
   ),
-  tree: ({
+  "relationship-tree": ({
     forest,
-    isTreeLoading,
+    isLoading,
     selectedId,
     onSelectEntity,
     scrollRef,
@@ -38,7 +38,7 @@ const featureComponents = {
   }: FeatureRendererProps) => (
     <LoreTreeSection
       forest={forest}
-      isLoading={isTreeLoading}
+      isLoading={isLoading}
       selectedId={selectedId}
       onSelect={onSelectEntity}
       scrollRef={scrollRef}
@@ -54,16 +54,16 @@ const featureComponents = {
       onSelectEntity={onSelectEntity}
     />
   ),
-} satisfies Partial<Record<string, (props: FeatureRendererProps) => ReactNode>>;
+} satisfies Record<string, (props: FeatureRendererProps) => ReactNode>;
 
-const FeatureRenderer = (props: FeatureRendererProps) => {
-  const renderFeature = featureComponents[props.feature.name];
+function FeatureRenderer(props: FeatureRendererProps) {
+  const renderFeature = featureComponents[props.feature.key];
 
   if (!renderFeature) {
     return null;
   }
 
   return <>{renderFeature(props)}</>;
-};
+}
 
 export default FeatureRenderer;

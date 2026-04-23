@@ -1,9 +1,9 @@
-const loresRepository = require('../repositories/lores');
 const entitiesRepository = require('../repositories/entities');
+const { getLoreOrNull } = require('./context');
 
 const entitiesService = {
     async listByLoreSlug(slug) {
-        const lore = await loresRepository.findBySlug(slug);
+        const lore = await getLoreOrNull(slug);
 
         if (!lore) {
             return null;
@@ -16,7 +16,7 @@ const entitiesService = {
     },
 
     async findById(slug, id) {
-        const lore = await loresRepository.findBySlug(slug);
+        const lore = await getLoreOrNull(slug);
 
         if (!lore) {
             return null;
@@ -29,7 +29,7 @@ const entitiesService = {
     },
 
     async findByField(slug, field, value) {
-        const lore = await loresRepository.findBySlug(slug);
+        const lore = await getLoreOrNull(slug);
 
         if (!lore) {
             return null;
