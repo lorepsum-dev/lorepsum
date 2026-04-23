@@ -23,8 +23,11 @@ interface ApiLoreSidebarGroup {
   key: string;
   label: string;
   display_order: number;
-  match_key: string;
-  match_value: string;
+  match: {
+    id: number;
+    key: string;
+    label: string;
+  };
   axis: {
     id: number;
     key: string;
@@ -84,15 +87,31 @@ interface ApiLore {
   slug: string;
   features: ApiLoreFeature[];
   sidebar_groups: ApiLoreSidebarGroup[];
-  presentation: {
-    entity_modal: {
-      badge_rules: Array<{
-        axis_key: string;
-        value_key: string;
+  entity_modal_presentation: {
+    badge_rules: Array<{
+      id: number;
+      label: string;
+      display_order: number;
+      axis: {
+        id: number;
+        key: string;
         label: string;
-      }>;
-      tag_axis_keys: string[];
-    };
+      };
+      match: {
+        id: number;
+        key: string;
+        label: string;
+      };
+    }>;
+    tag_axes: Array<{
+      id: number;
+      display_order: number;
+      axis: {
+        id: number;
+        key: string;
+        label: string;
+      };
+    }>;
   };
 }
 
@@ -119,8 +138,11 @@ function normalizeSidebarGroup(group: ApiLoreSidebarGroup): LoreSidebarGroup {
     key: group.key,
     label: group.label,
     displayOrder: group.display_order,
-    matchKey: group.match_key,
-    matchLabel: group.match_value,
+    match: {
+      id: group.match.id,
+      key: group.match.key,
+      label: group.match.label,
+    },
     axis: {
       id: group.axis.id,
       key: group.axis.key,
@@ -190,15 +212,31 @@ function normalizeLore(lore: ApiLore): Lore {
     slug: lore.slug,
     features: lore.features.map(normalizeFeature),
     sidebarGroups: lore.sidebar_groups.map(normalizeSidebarGroup),
-    presentation: {
-      entityModal: {
-        badgeRules: lore.presentation.entity_modal.badge_rules.map((rule) => ({
-          axisKey: rule.axis_key,
-          valueKey: rule.value_key,
-          label: rule.label,
-        })),
-        tagAxisKeys: lore.presentation.entity_modal.tag_axis_keys,
-      },
+    entityModalPresentation: {
+      badgeRules: lore.entity_modal_presentation.badge_rules.map((rule) => ({
+        id: rule.id,
+        label: rule.label,
+        displayOrder: rule.display_order,
+        axis: {
+          id: rule.axis.id,
+          key: rule.axis.key,
+          label: rule.axis.label,
+        },
+        match: {
+          id: rule.match.id,
+          key: rule.match.key,
+          label: rule.match.label,
+        },
+      })),
+      tagAxes: lore.entity_modal_presentation.tag_axes.map((axisRule) => ({
+        id: axisRule.id,
+        displayOrder: axisRule.display_order,
+        axis: {
+          id: axisRule.axis.id,
+          key: axisRule.axis.key,
+          label: axisRule.axis.label,
+        },
+      })),
     },
   };
 }

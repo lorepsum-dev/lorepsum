@@ -1,5 +1,5 @@
 import { entityHasCategoryValue } from "./categories";
-import type { Entity, EntityModalData, LorePresentation, Relationship } from "./types";
+import type { Entity, EntityModalData, LoreEntityModalPresentation, Relationship } from "./types";
 
 const relationLabels: Record<string, string> = {
   spouse: "Spouse",
@@ -9,9 +9,9 @@ const relationLabels: Record<string, string> = {
   ally: "Ally",
 };
 
-function getBadgeLabel(entity: Entity, presentation: LorePresentation) {
-  for (const rule of presentation.entityModal.badgeRules) {
-    if (entityHasCategoryValue(entity, rule.axisKey, rule.valueKey)) {
+function getBadgeLabel(entity: Entity, presentation: LoreEntityModalPresentation) {
+  for (const rule of presentation.badgeRules) {
+    if (entityHasCategoryValue(entity, rule.axis.key, rule.match.key)) {
       return rule.label;
     }
   }
@@ -27,9 +27,9 @@ export function mapEntityModal(
   entity: Entity,
   relationships: Relationship[],
   entities: Entity[],
-  presentation: LorePresentation,
+  presentation: LoreEntityModalPresentation,
 ): EntityModalData {
-  const tagAxisKeys = new Set(presentation.entityModal.tagAxisKeys);
+  const tagAxisKeys = new Set(presentation.tagAxes.map((axisRule) => axisRule.axis.key));
 
   const parents = relationships
     .filter((relationship) => relationship.kind === "parent" && relationship.relatedId === entity.id)

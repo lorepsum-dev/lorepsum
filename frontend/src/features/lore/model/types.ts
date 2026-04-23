@@ -11,8 +11,11 @@ export interface LoreSidebarGroup {
   key: string;
   label: string;
   displayOrder: number;
-  matchKey: string;
-  matchLabel: string;
+  match: {
+    id: number;
+    key: string;
+    label: string;
+  };
   axis: {
     id: number;
     key: string;
@@ -20,15 +23,31 @@ export interface LoreSidebarGroup {
   };
 }
 
-export interface LorePresentation {
-  entityModal: {
-    badgeRules: Array<{
-      axisKey: string;
-      valueKey: string;
+export interface LoreEntityModalPresentation {
+  badgeRules: Array<{
+    id: number;
+    label: string;
+    displayOrder: number;
+    axis: {
+      id: number;
+      key: string;
       label: string;
-    }>;
-    tagAxisKeys: string[];
-  };
+    };
+    match: {
+      id: number;
+      key: string;
+      label: string;
+    };
+  }>;
+  tagAxes: Array<{
+    id: number;
+    displayOrder: number;
+    axis: {
+      id: number;
+      key: string;
+      label: string;
+    };
+  }>;
 }
 
 export interface Lore {
@@ -38,7 +57,7 @@ export interface Lore {
   slug: string;
   features: LoreFeature[];
   sidebarGroups: LoreSidebarGroup[];
-  presentation: LorePresentation;
+  entityModalPresentation: LoreEntityModalPresentation;
 }
 
 export interface EntityCategoryValue {

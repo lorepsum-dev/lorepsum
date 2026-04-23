@@ -1,5 +1,5 @@
 const loresRepository = require('../repositories/lores');
-const { getLorePresentation } = require('../config/presentation');
+const entityModalPresentationRepository = require('../repositories/entityModalPresentation');
 const { getLoreOrNull } = require('./context');
 
 const loresService = {
@@ -14,16 +14,17 @@ const loresService = {
             return null;
         }
 
-        const [features, sidebarGroups] = await Promise.all([
+        const [features, sidebarGroups, entityModalPresentation] = await Promise.all([
             loresRepository.findFeaturesByLoreId(lore.id),
-            loresRepository.findSidebarGroupsByLoreId(lore.id)
+            loresRepository.findSidebarGroupsByLoreId(lore.id),
+            entityModalPresentationRepository.findByLoreId(lore.id)
         ]);
 
         return {
             ...lore,
             features,
             sidebar_groups: sidebarGroups,
-            presentation: getLorePresentation(slug)
+            entity_modal_presentation: entityModalPresentation
         };
     },
 

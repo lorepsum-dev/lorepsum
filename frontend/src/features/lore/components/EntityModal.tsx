@@ -1,11 +1,11 @@
 import { getRelationLabel, mapEntityModal } from "../model/mapEntityModal";
-import type { Entity, LorePresentation, Relationship } from "../model/types";
+import type { Entity, LoreEntityModalPresentation, Relationship } from "../model/types";
 
 interface EntityModalProps {
   entity: Entity;
   entities: Entity[];
   relationships: Relationship[];
-  presentation: LorePresentation;
+  entityModalPresentation: LoreEntityModalPresentation;
   onClose: () => void;
 }
 
@@ -13,10 +13,10 @@ function EntityModal({
   entity,
   entities,
   relationships,
-  presentation,
+  entityModalPresentation,
   onClose,
 }: EntityModalProps) {
-  const modalData = mapEntityModal(entity, relationships, entities, presentation);
+  const modalData = mapEntityModal(entity, relationships, entities, entityModalPresentation);
 
   return (
     <>

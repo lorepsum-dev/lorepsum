@@ -43,8 +43,11 @@ const sidebarGroups: LoreSidebarGroup[] = [
     key: "sidebar-group-1",
     label: "Olympians",
     displayOrder: 1,
-    matchKey: "olympus",
-    matchLabel: "Olympus",
+    match: {
+      id: 1,
+      key: "olympus",
+      label: "Olympus",
+    },
     axis: {
       id: 1,
       key: "habitat",

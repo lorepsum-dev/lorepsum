@@ -109,7 +109,7 @@ function LoreDetailPage() {
           entity={selectedEntity}
           entities={entities}
           relationships={relationships}
-          presentation={lore.presentation}
+          entityModalPresentation={lore.entityModalPresentation}
           onClose={clearSelection}
         />
       )}

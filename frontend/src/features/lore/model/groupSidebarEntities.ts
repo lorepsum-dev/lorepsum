@@ -13,7 +13,7 @@ export function groupSidebarEntities(
     .sort((left, right) => left.displayOrder - right.displayOrder)
     .map((group) => {
       const matchedEntities = sortedEntities.filter((entity) =>
-        entityHasCategoryValue(entity, group.axis.key, group.matchKey),
+        entityHasCategoryValue(entity, group.axis.key, group.match.key),
       );
 
       matchedEntities.forEach((entity) => remainingEntityIds.delete(entity.id));

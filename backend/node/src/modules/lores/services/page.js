@@ -2,7 +2,7 @@ const loresRepository = require('../repositories/lores');
 const entitiesRepository = require('../repositories/entities');
 const relationshipsRepository = require('../repositories/relationships');
 const narrativesRepository = require('../repositories/narratives');
-const { getLorePresentation } = require('../config/presentation');
+const entityModalPresentationRepository = require('../repositories/entityModalPresentation');
 const { getLoreOrNull } = require('./context');
 
 const lorePageService = {
@@ -16,12 +16,14 @@ const lorePageService = {
         const [
             features,
             sidebarGroups,
+            entityModalPresentation,
             entities,
             relationships,
             narratives
         ] = await Promise.all([
             loresRepository.findFeaturesByLoreId(lore.id),
             loresRepository.findSidebarGroupsByLoreId(lore.id),
+            entityModalPresentationRepository.findByLoreId(lore.id),
             entitiesRepository.findAllByLoreSlug(slug),
             relationshipsRepository.findAllByLoreSlug(slug),
             narrativesRepository.findAllByLoreSlug(slug)
@@ -32,7 +34,7 @@ const lorePageService = {
                 ...lore,
                 features,
                 sidebar_groups: sidebarGroups,
-                presentation: getLorePresentation(slug)
+                entity_modal_presentation: entityModalPresentation
             },
             entities,
             relationships,

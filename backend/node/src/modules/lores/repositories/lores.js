@@ -63,12 +63,15 @@ const loresRepository = {
                 lsg.id,
                 lsg.label,
                 lsg.display_order,
-                lsg.match_value,
+                category_value.id AS category_id,
+                category_value.name AS category_name,
                 ca.id AS axis_id,
                 ca.name AS axis_name
             FROM lore_sidebar_groups lsg
+            INNER JOIN categories category_value
+                ON category_value.id = lsg.category_id
             INNER JOIN category_axes ca
-                ON ca.id = lsg.axis_id
+                ON ca.id = category_value.axis_id
             WHERE lsg.lore_id = $1
             ORDER BY lsg.display_order, lsg.id
         `, [loreId]);
@@ -78,8 +81,11 @@ const loresRepository = {
             key: `sidebar-group-${row.id}`,
             label: row.label,
             display_order: row.display_order,
-            match_key: toMetadataKey(row.match_value),
-            match_value: row.match_value,
+            match: {
+                id: row.category_id,
+                key: toMetadataKey(row.category_name),
+                label: row.category_name
+            },
             axis: {
                 id: row.axis_id,
                 key: toMetadataKey(row.axis_name),
