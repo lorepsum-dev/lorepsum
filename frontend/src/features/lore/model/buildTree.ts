@@ -10,6 +10,14 @@ export function buildTree(entities: Entity[], relationships: Relationship[]): Tr
   const roots = entities.filter((entity) => !childIds.has(entity.id) && inTree.has(entity.id));
   const placed = new Set<number>();
 
+  const primaryParentId = new Map<number, number>();
+  for (const rel of parentRels) {
+    const current = primaryParentId.get(rel.related_id);
+    if (current === undefined || rel.entity_id < current) {
+      primaryParentId.set(rel.related_id, rel.entity_id);
+    }
+  }
+
   const buildNode = (entity: Entity): TreeNode => {
     placed.add(entity.id);
 
@@ -17,6 +25,7 @@ export function buildTree(entities: Entity[], relationships: Relationship[]): Tr
       .filter((relationship) => relationship.entity_id === entity.id)
       .map((relationship) => entities.find((candidate) => candidate.id === relationship.related_id))
       .filter((candidate): candidate is Entity => Boolean(candidate))
+      .filter((child) => primaryParentId.get(child.id) === entity.id)
       .filter((child) => !placed.has(child.id))
       .map((child) => buildNode(child));
 
