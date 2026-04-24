@@ -16,8 +16,7 @@ const lorePageController = {
             return sendJson(res, 200, {
                 status: 'success',
                 lore: data.lore,
-                entities: data.entities,
-                relationships: data.relationships,
+                graph: data.graph,
                 narratives: data.narratives
             });
         } catch (error) {

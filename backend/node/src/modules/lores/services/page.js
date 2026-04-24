@@ -36,8 +36,10 @@ const lorePageService = {
                 sidebar_groups: sidebarGroups,
                 entity_modal_presentation: entityModalPresentation
             },
-            entities,
-            relationships,
+            graph: {
+                nodes: entities,
+                edges: relationships
+            },
             narratives
         };
     }

@@ -1,5 +1,18 @@
-import { getRelationLabel, mapEntityModal } from "../model/mapEntityModal";
+import { useEffect, useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
+import { mapEntityModal } from "../model/mapEntityModal";
 import type { Entity, LoreEntityModalPresentation, Relationship } from "../model/types";
+
+const RELATIONSHIP_PREVIEW_LIMIT = 3;
+const RELATIONSHIP_COLLAPSE_THRESHOLD = 4;
+
+function getDefaultOpenGroupKeys(
+  relationshipGroups: ReturnType<typeof mapEntityModal>["relationshipGroups"],
+) {
+  return relationshipGroups
+    .filter((relationshipGroup) => relationshipGroup.relationships.length < RELATIONSHIP_COLLAPSE_THRESHOLD)
+    .map((relationshipGroup) => relationshipGroup.key);
+}
 
 interface EntityModalProps {
   entity: Entity;
@@ -16,7 +29,23 @@ function EntityModal({
   entityModalPresentation,
   onClose,
 }: EntityModalProps) {
-  const modalData = mapEntityModal(entity, relationships, entities, entityModalPresentation);
+  const modalData = useMemo(
+    () => mapEntityModal(entity, relationships, entities, entityModalPresentation),
+    [entity, relationships, entities, entityModalPresentation],
+  );
+  const [openGroupKeys, setOpenGroupKeys] = useState<string[]>(() => getDefaultOpenGroupKeys(modalData.relationshipGroups));
+
+  useEffect(() => {
+    setOpenGroupKeys(getDefaultOpenGroupKeys(modalData.relationshipGroups));
+  }, [entity.id, modalData.relationshipGroups]);
+
+  const toggleGroup = (groupKey: string) => {
+    setOpenGroupKeys((current) =>
+      current.includes(groupKey)
+        ? current.filter((key) => key !== groupKey)
+        : [...current, groupKey],
+    );
+  };
 
   return (
     <>
@@ -30,7 +59,7 @@ function EntityModal({
           onClick={onClose}
           className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-primary-light/15 bg-secondary/80 text-3xl leading-none text-muted-foreground/60 transition hover:border-primary-light/40 hover:text-primary-light"
         >
-          ×
+          &#10005;
         </button>
 
         <div
@@ -68,22 +97,74 @@ function EntityModal({
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{entity.description}</p>
           </div>
 
-          {modalData.parents.length > 0 && (
-            <div className="mb-3 text-center font-mono text-xs text-primary-light/40">
-              born of {modalData.parents.map((parent) => parent.name).join(" · ")}
-            </div>
-          )}
+          {modalData.relationshipGroups.length > 0 && (
+            <div className="mb-3 flex flex-col divide-y divide-primary-light/10">
+              {modalData.relationshipGroups.map((relationshipGroup) => {
+                const isOpen = openGroupKeys.includes(relationshipGroup.key);
+                const previewNames = relationshipGroup.relationships
+                  .slice(0, RELATIONSHIP_PREVIEW_LIMIT)
+                  .map((relationship) => relationship.entity.name);
+                const remainingCount = relationshipGroup.relationships.length - previewNames.length;
 
-          {modalData.relatedEntities.length > 0 && (
-            <div className="mb-3 flex flex-wrap justify-center gap-1.5">
-              {modalData.relatedEntities.map((relationship) => (
-                <span
-                  key={`${relationship.kind}-${relationship.entity.id}`}
-                  className="rounded-full border border-primary-light/15 px-2.5 py-0.5 text-[10px] font-mono text-primary-light/50"
-                >
-                  {getRelationLabel(relationship.kind)}: {relationship.entity.name}
-                </span>
-              ))}
+                return (
+                  <div key={relationshipGroup.key} className="overflow-hidden">
+                    <button
+                      onClick={() => toggleGroup(relationshipGroup.key)}
+                      className="group flex w-full items-start gap-3 py-3 text-left focus:outline-none"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className={cn(
+                          "mt-0.5 shrink-0 text-primary-light/40 transition-transform duration-200",
+                          isOpen ? "rotate-90 text-primary-light/70" : "group-hover:text-primary-light/60",
+                        )}
+                      >
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                          <span className="font-mono text-xs text-primary-light/70">
+                            {relationshipGroup.label}
+                          </span>
+                          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary-light/35">
+                            ({relationshipGroup.relationships.length})
+                          </span>
+                        </div>
+
+                        {!isOpen && (
+                          <div className="mt-1 font-mono text-xs leading-relaxed text-muted-foreground/80">
+                            {previewNames.join(", ")}
+                            {remainingCount > 0 ? ` +${remainingCount} more` : ""}
+                          </div>
+                        )}
+                      </div>
+                    </button>
+
+                    <div
+                      style={{ maxHeight: isOpen ? "600px" : "0px" }}
+                      className="overflow-hidden transition-[max-height] duration-300 ease-in-out"
+                    >
+                      <div className="pb-3 pl-[1.625rem] font-mono text-xs leading-relaxed text-muted-foreground/80">
+                        {relationshipGroup.relationships.map((relationship, index) => (
+                          <span key={relationship.edgeId}>
+                            {index > 0 ? ", " : ""}
+                            {relationship.entity.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
 

@@ -1,21 +1,19 @@
 import type { Entity, Relationship, TreeNode } from "./types";
 
-const HIERARCHY_RELATIONSHIP_KEY = "parent";
-
 export function buildTree(entities: Entity[], relationships: Relationship[]): TreeNode[] {
   const entitiesById = new Map(entities.map((entity) => [entity.id, entity]));
-  const parentLinks = relationships.filter((relationship) => relationship.kind === HIERARCHY_RELATIONSHIP_KEY);
+  const parentLinks = relationships.filter((relationship) => relationship.type.isHierarchical);
   const childrenByParentId = new Map<number, number[]>();
   const parentsByChildId = new Map<number, number[]>();
 
   for (const relationship of parentLinks) {
-    const childIds = childrenByParentId.get(relationship.entityId) ?? [];
-    childIds.push(relationship.relatedId);
-    childrenByParentId.set(relationship.entityId, childIds);
+    const childIds = childrenByParentId.get(relationship.sourceEntityId) ?? [];
+    childIds.push(relationship.targetEntityId);
+    childrenByParentId.set(relationship.sourceEntityId, childIds);
 
-    const parentIds = parentsByChildId.get(relationship.relatedId) ?? [];
-    parentIds.push(relationship.entityId);
-    parentsByChildId.set(relationship.relatedId, parentIds);
+    const parentIds = parentsByChildId.get(relationship.targetEntityId) ?? [];
+    parentIds.push(relationship.sourceEntityId);
+    parentsByChildId.set(relationship.targetEntityId, parentIds);
   }
 
   const linkedEntityIds = new Set<number>([
@@ -30,10 +28,10 @@ export function buildTree(entities: Entity[], relationships: Relationship[]): Tr
   const primaryParentIdByChildId = new Map<number, number>();
 
   for (const relationship of parentLinks) {
-    const currentParentId = primaryParentIdByChildId.get(relationship.relatedId);
+    const currentParentId = primaryParentIdByChildId.get(relationship.targetEntityId);
 
-    if (currentParentId === undefined || relationship.entityId < currentParentId) {
-      primaryParentIdByChildId.set(relationship.relatedId, relationship.entityId);
+    if (currentParentId === undefined || relationship.sourceEntityId < currentParentId) {
+      primaryParentIdByChildId.set(relationship.targetEntityId, relationship.sourceEntityId);
     }
   }
 

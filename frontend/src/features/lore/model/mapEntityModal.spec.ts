@@ -45,11 +45,70 @@ const parent: Entity = {
   groups: [],
 };
 
+const spouse: Entity = {
+  id: 3,
+  name: "Hera",
+  description: "Queen of the gods",
+  avatarUrl: null,
+  gender: "female",
+  origin: "Greece",
+  categories: [],
+  groups: [],
+};
+
+const child: Entity = {
+  id: 4,
+  name: "Ares",
+  description: "War god",
+  avatarUrl: null,
+  gender: "male",
+  origin: "Greece",
+  categories: [],
+  groups: [],
+};
+
 const relationships: Relationship[] = [
   {
-    entityId: 2,
-    relatedId: 1,
-    kind: "parent",
+    id: 1,
+    sourceEntityId: 2,
+    targetEntityId: 1,
+    type: {
+      id: 1,
+      key: "parent_of",
+      familyKey: "kinship",
+      forwardLabel: "Parent of",
+      reverseLabel: "Child of",
+      isSymmetric: false,
+      isHierarchical: true,
+    },
+  },
+  {
+    id: 2,
+    sourceEntityId: 1,
+    targetEntityId: 3,
+    type: {
+      id: 2,
+      key: "spouse_of",
+      familyKey: "kinship",
+      forwardLabel: "Spouse of",
+      reverseLabel: "Spouse of",
+      isSymmetric: true,
+      isHierarchical: false,
+    },
+  },
+  {
+    id: 3,
+    sourceEntityId: 1,
+    targetEntityId: 4,
+    type: {
+      id: 1,
+      key: "parent_of",
+      familyKey: "kinship",
+      forwardLabel: "Parent of",
+      reverseLabel: "Child of",
+      isSymmetric: false,
+      isHierarchical: true,
+    },
   },
 ];
 
@@ -94,11 +153,45 @@ const entityModalPresentation: LoreEntityModalPresentation = {
 };
 
 describe("mapEntityModal", () => {
-  it("builds badge and tag categories from data-driven presentation rules", () => {
-    const modalData = mapEntityModal(entity, relationships, [entity, parent], entityModalPresentation);
+  it("builds badge, traits, and relationship groups by relationship label from data-driven metadata", () => {
+    const modalData = mapEntityModal(entity, relationships, [entity, parent, spouse, child], entityModalPresentation);
 
     expect(modalData.badgeLabel).toBe("Olympian");
-    expect(modalData.parents).toEqual([parent]);
+    expect(modalData.relationshipGroups).toEqual([
+      {
+        key: "parent_of:Child of",
+        typeKey: "parent_of",
+        label: "Child of",
+        relationships: [
+          {
+            edgeId: 1,
+            entity: parent,
+          },
+        ],
+      },
+      {
+        key: "parent_of:Parent of",
+        typeKey: "parent_of",
+        label: "Parent of",
+        relationships: [
+          {
+            edgeId: 3,
+            entity: child,
+          },
+        ],
+      },
+      {
+        key: "spouse_of:Spouse of",
+        typeKey: "spouse_of",
+        label: "Spouse of",
+        relationships: [
+          {
+            edgeId: 2,
+            entity: spouse,
+          },
+        ],
+      },
+    ]);
     expect(modalData.tagCategories).toEqual(["Sky", "King"]);
     expect(modalData.labeledCategories).toEqual([["habitat", ["Olympus"]], ["lineage", ["God"]]]);
   });

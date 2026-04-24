@@ -89,9 +89,23 @@ export interface Entity {
 }
 
 export interface Relationship {
-  entityId: number;
-  relatedId: number;
-  kind: string;
+  id: number;
+  sourceEntityId: number;
+  targetEntityId: number;
+  type: {
+    id: number;
+    key: string;
+    familyKey: string;
+    forwardLabel: string;
+    reverseLabel: string;
+    isSymmetric: boolean;
+    isHierarchical: boolean;
+  };
+}
+
+export interface GraphData {
+  nodes: Entity[];
+  edges: Relationship[];
 }
 
 export interface Narrative {
@@ -118,11 +132,14 @@ export interface SidebarEntityGroup {
 }
 
 export interface EntityModalData {
-  parents: Entity[];
-  relatedEntities: Array<{
-    kind: string;
+  relationshipGroups: Array<{
+    key: string;
+    typeKey: string;
     label: string;
-    entity: Entity;
+    relationships: Array<{
+      edgeId: number;
+      entity: Entity;
+    }>;
   }>;
   initials: string;
   badgeLabel: string | null;
@@ -132,7 +149,6 @@ export interface EntityModalData {
 
 export interface LorePageData {
   lore: Lore;
-  entities: Entity[];
-  relationships: Relationship[];
+  graph: GraphData;
   narratives: Narrative[];
 }

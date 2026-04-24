@@ -2,6 +2,7 @@ import type {
   Entity,
   EntityCategoryAxis,
   EntityGroup,
+  GraphData,
   Lore,
   LoreFeature,
   LorePageData,
@@ -64,9 +65,18 @@ interface ApiEntity {
 }
 
 interface ApiRelationship {
-  entity_id: number;
-  related_id: number;
-  type: string;
+  id: number;
+  source_entity_id: number;
+  target_entity_id: number;
+  relationship_type: {
+    id: number;
+    key: string;
+    family_key: string;
+    forward_label: string;
+    reverse_label: string;
+    is_symmetric: boolean;
+    is_hierarchical: boolean;
+  };
 }
 
 interface ApiNarrative {
@@ -117,8 +127,10 @@ interface ApiLore {
 
 interface ApiLorePageResponse {
   lore: ApiLore;
-  entities: ApiEntity[];
-  relationships: ApiRelationship[];
+  graph: {
+    nodes: ApiEntity[];
+    edges: ApiRelationship[];
+  };
   narratives: ApiNarrative[];
 }
 
@@ -185,9 +197,25 @@ function normalizeEntity(entity: ApiEntity): Entity {
 
 function normalizeRelationship(relationship: ApiRelationship): Relationship {
   return {
-    entityId: relationship.entity_id,
-    relatedId: relationship.related_id,
-    kind: relationship.type,
+    id: relationship.id,
+    sourceEntityId: relationship.source_entity_id,
+    targetEntityId: relationship.target_entity_id,
+    type: {
+      id: relationship.relationship_type.id,
+      key: relationship.relationship_type.key,
+      familyKey: relationship.relationship_type.family_key,
+      forwardLabel: relationship.relationship_type.forward_label,
+      reverseLabel: relationship.relationship_type.reverse_label,
+      isSymmetric: relationship.relationship_type.is_symmetric,
+      isHierarchical: relationship.relationship_type.is_hierarchical,
+    },
+  };
+}
+
+function normalizeGraph(graph: ApiLorePageResponse["graph"]): GraphData {
+  return {
+    nodes: graph.nodes.map(normalizeEntity),
+    edges: graph.edges.map(normalizeRelationship),
   };
 }
 
@@ -244,8 +272,7 @@ function normalizeLore(lore: ApiLore): Lore {
 function normalizeLorePage(response: ApiLorePageResponse): LorePageData {
   return {
     lore: normalizeLore(response.lore),
-    entities: response.entities.map(normalizeEntity),
-    relationships: response.relationships.map(normalizeRelationship),
+    graph: normalizeGraph(response.graph),
     narratives: response.narratives.map(normalizeNarrative),
   };
 }

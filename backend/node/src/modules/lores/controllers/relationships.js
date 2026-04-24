@@ -16,8 +16,9 @@ const relationshipsController = {
             return sendJson(res, 200, {
                 status: 'success',
                 lore: data.lore,
-                results: data.relationships.length,
-                relationships: data.relationships
+                results: data.edges.length,
+                nodes: data.nodes,
+                edges: data.edges
             });
         } catch (error) {
             console.error(error);

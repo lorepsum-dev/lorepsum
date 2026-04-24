@@ -25,8 +25,9 @@ function LoreDetailPage() {
   const [sidebarMode, setSidebarMode] = useState<"all" | "grouped">("grouped");
   const lorePageQuery = useLorePageData(safeSlug);
   const lorePage = lorePageQuery.data;
-  const entities = lorePage?.entities ?? EMPTY_ENTITIES;
-  const relationships = lorePage?.relationships ?? EMPTY_RELATIONSHIPS;
+  const graph = lorePage?.graph;
+  const entities = graph?.nodes ?? EMPTY_ENTITIES;
+  const relationships = graph?.edges ?? EMPTY_RELATIONSHIPS;
   const narratives = lorePage?.narratives ?? EMPTY_NARRATIVES;
   const lore = lorePage?.lore;
   const sidebarGroups = lore?.sidebarGroups ?? EMPTY_SIDEBAR_GROUPS;
