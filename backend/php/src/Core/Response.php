@@ -21,10 +21,9 @@ class Response {
      * @param mixed $data 
      * @param string $message 
      */
-    public static function success($data = null, $message = 'Success!') {
+    public static function success($data = null) {
         self::json([
             'success' => true,
-            'message' => $message,
             'data' => $data
         ], 200);
     }

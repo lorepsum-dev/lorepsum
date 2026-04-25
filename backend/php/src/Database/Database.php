@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core;
+namespace App\Database;
 
 use PDO;
 use PDOException;
@@ -14,6 +14,7 @@ class Database {
      */
     private function __construct() {
         $db_host = $_ENV['DB_HOST'];
+        $db_endpoint = $_ENV['DB_ENDPOINT'];
         $db_user = $_ENV['DB_USER'];
         $db_pass = $_ENV['DB_PASS'];
         $db_port = $_ENV['DB_PORT'];
@@ -22,7 +23,7 @@ class Database {
         $dsn = "pgsql:host=$db_host;port=$db_port;dbname=$db_name;sslmode=require";
 
         try {
-            $this->connection = new PDO($dsn, $db_user, $db_pass);
+            $this->connection = new PDO($dsn, $db_user, $db_endpoint . $db_pass);
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);            
         } catch (PDOException $e) {
             die('Tremor no Submundo! Erro de conexão: ' . $e->getMessage());        

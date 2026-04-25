@@ -3,8 +3,15 @@
 namespace App\Modules\Mythologies\Domain;
 
 use App\Core\Domain;
+use App\Modules\Mythologies\Domain\Gender;
+use App\Modules\Mythologies\Domain\Origin;
 
 class Entity extends Domain {
+    protected $with = [
+        'gender',
+        'origin'
+    ];
+
     private $id;
     private $name;
     private $description;
@@ -12,8 +19,20 @@ class Entity extends Domain {
     private $gender_id;
     private $variant;
 
-    public function __construct(array $data = []) {
-        $this->fill($data);    
+    /**
+     * Get the entity gender relation.
+     * @return \App\Database\Relations\BelongsTo
+     */
+    public function gender() {
+        return $this->belongsTo(Gender::class, 'gender_id');
+    }
+
+    /**
+     * Get the entity origin relation.
+     * @return \App\Database\Relations\BelongsTo
+     */
+    public function origin() {
+        return $this->belongsTo(Origin::class, 'origin_id');
     }
 
     ///////////////////////
@@ -35,8 +54,16 @@ class Entity extends Domain {
         return $this->origin_id;
     }
 
+    public function getOrigin() {
+        return $this->getRelation('origin');
+    }
+
     public function getGenderId() {
         return $this->gender_id;
+    }
+
+    public function getGender() {
+        return $this->getRelation('gender');
     }
 
     public function getVariant() {

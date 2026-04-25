@@ -3,7 +3,6 @@
 namespace App\Modules\Mythologies\Resource;
 
 use App\Core\Resource;
-use App\Modules\Mythologies\Domain\Entity;
 
 class EntityResource extends Resource {
     /**
@@ -11,12 +10,15 @@ class EntityResource extends Resource {
      * @param \App\Modules\Mythologies\Domain\Entity $entity
      */
     public static function toArray($entity) {
+        $origin = $entity->getOrigin();
+        $gender = $entity->getGender();
+
         return [
             'id'          => $entity->getId(),
             'name'        => $entity->getName(),
             'description' => $entity->getDescription(),
-            'origin_id'   => $entity->getOriginId(),
-            'gender_id'   => $entity->getGenderId(),
+            'origin'      => $origin ? OriginResource::toArray($origin) : null,
+            'gender'      => $gender ? GenderResource::toArray($gender) : null,
             'variant'     => $entity->getVariant()
         ];
     }
