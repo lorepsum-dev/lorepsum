@@ -2,17 +2,27 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-const links = [
-  { label: "Home", to: "/" },
-  { label: "Builds", to: "/builds" },
-  { label: "Lab", to: "/lab" },
-  { label: "Lore's", to: "/lores" },
-  { label: "Owners", to: "/owners" },
+type NavItem =
+  | { kind: "route"; label: string; to: string }
+  | { kind: "hash"; label: string; hash: string };
+
+const items: NavItem[] = [
+  { kind: "route", label: "Home", to: "/" },
+  { kind: "hash", label: "What you can build", hash: "#what-you-can-build" },
+  { kind: "hash", label: "How it works", hash: "#how-it-works" },
+  { kind: "hash", label: "Explore", hash: "#explore" },
+  { kind: "route", label: "Lore's", to: "/lores" },
+  { kind: "route", label: "Owners", to: "/owners" },
 ];
 
 const Nav = () => {
   const { pathname } = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+
+  const isHome = pathname === "/";
+  const visibleItems = isHome ? items : items.filter((item) => item.kind === "route");
+
+  const close = () => setIsOpen(false);
 
   return (
     <>
@@ -37,7 +47,7 @@ const Nav = () => {
       {isOpen && (
         <div
           className="fixed inset-0 z-[45] bg-background/40 backdrop-blur-sm sm:hidden"
-          onClick={() => setIsOpen(false)}
+          onClick={close}
         />
       )}
 
@@ -52,31 +62,47 @@ const Nav = () => {
         <div className="absolute left-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-primary-light/40 to-transparent" />
 
         <div className="flex flex-col gap-10 pl-5">
-          {links.map((link) => {
-            const active =
-              link.to === "/lores"
-                ? pathname === "/lores" || pathname.startsWith("/lores/")
-                : pathname === link.to;
+          {visibleItems.map((item) => {
+            if (item.kind === "route") {
+              const active =
+                item.to === "/lores"
+                  ? pathname === "/lores" || pathname.startsWith("/lores/")
+                  : pathname === item.to;
+              return (
+                <div key={item.to} className="relative flex items-center gap-3">
+                  <span
+                    className={cn(
+                      "absolute -left-5 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm leading-none text-primary-light drop-shadow-[0_0_6px_hsl(var(--primary-light))] transition-opacity duration-500",
+                      active ? "opacity-100" : "opacity-0",
+                    )}
+                  >
+                    ✦
+                  </span>
+                  <Link
+                    to={item.to}
+                    onClick={close}
+                    className={cn(
+                      "font-display text-xs uppercase tracking-[0.3em] transition-colors",
+                      active
+                        ? "text-primary-light"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                </div>
+              );
+            }
+
             return (
-              <div key={link.to} className="relative flex items-center gap-3">
-                <span
-                  className={cn(
-                    "absolute -left-5 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm leading-none text-primary-light drop-shadow-[0_0_6px_hsl(var(--primary-light))] transition-opacity duration-500",
-                    active ? "opacity-100" : "opacity-0",
-                  )}
+              <div key={item.hash} className="relative flex items-center gap-3">
+                <a
+                  href={item.hash}
+                  onClick={close}
+                  className="font-display text-xs uppercase tracking-[0.3em] text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  ✦
-                </span>
-                <Link
-                  to={link.to}
-                  onClick={() => setIsOpen(false)}
-                  className={cn(
-                    "font-display text-xs uppercase tracking-[0.3em] transition-colors",
-                    active ? "text-primary-light" : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {link.label}
-                </Link>
+                  {item.label}
+                </a>
               </div>
             );
           })}
