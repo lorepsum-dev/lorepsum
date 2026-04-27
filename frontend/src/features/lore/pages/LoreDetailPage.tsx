@@ -30,6 +30,7 @@ function LoreDetailPage() {
   const relationships = graph?.edges ?? EMPTY_RELATIONSHIPS;
   const narratives = lorePage?.narratives ?? EMPTY_NARRATIVES;
   const lore = lorePage?.lore;
+  const features = lore?.features ?? [];
   const sidebarGroups = lore?.sidebarGroups ?? EMPTY_SIDEBAR_GROUPS;
 
   const { selectedId, selectedEntity, toggleEntitySelection, clearSelection } = useEntitySelection(entities);
@@ -68,7 +69,7 @@ function LoreDetailPage() {
       className="page-snap h-screen w-full overflow-y-scroll"
       style={{ scrollSnapType: "y mandatory", scrollbarWidth: "none" }}
     >
-      {(lore?.features ?? []).map((feature, index, collection) => (
+      {features.map((feature, index, collection) => (
         <LoreFeatureSection
           key={feature.id}
           feature={feature}
@@ -84,6 +85,7 @@ function LoreDetailPage() {
             forest={forest}
             narratives={narratives}
             entities={entities}
+            relationships={relationships}
             isLoading={lorePageQuery.isLoading}
             selectedId={selectedId}
             onSelectEntity={toggleEntitySelection}

@@ -1,14 +1,16 @@
 import type { MouseEvent, ReactNode, RefObject } from "react";
+import LoreGraphSection from "./LoreGraphSection";
 import LoreCardsSection from "./LoreCardsSection";
 import LoreNarrativesSection from "./LoreNarrativesSection";
 import LoreTreeSection from "./LoreTreeSection";
-import type { Entity, LoreFeature, Narrative, TreeNode } from "../model/types";
+import type { Entity, LoreFeature, Narrative, Relationship, TreeNode } from "../model/types";
 
 interface FeatureRendererProps {
   feature: LoreFeature;
   forest: TreeNode[];
   narratives: Narrative[];
   entities: Entity[];
+  relationships: Relationship[];
   isLoading: boolean;
   selectedId: number | null;
   onSelectEntity: (id: number) => void;
@@ -45,6 +47,21 @@ const featureComponents = {
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
+    />
+  ),
+  "relationship-graph": ({
+    entities,
+    relationships,
+    isLoading,
+    selectedId,
+    onSelectEntity,
+  }: FeatureRendererProps) => (
+    <LoreGraphSection
+      entities={entities}
+      relationships={relationships}
+      isLoading={isLoading}
+      selectedId={selectedId}
+      onSelectEntity={onSelectEntity}
     />
   ),
   narratives: ({ narratives, entities, onSelectEntity }: FeatureRendererProps) => (
