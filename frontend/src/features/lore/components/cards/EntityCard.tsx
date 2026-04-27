@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { Entity } from "../../model/types";
-import { useEntityAvatar } from "../../hooks/useEntityAvatar";
+import { useEntityImage } from "../../hooks/useEntityImage";
 
 interface EntityCardProps {
   entity: Entity;
@@ -11,7 +11,7 @@ interface EntityCardProps {
 
 function EntityCard({ entity, position, onSelect, compact }: EntityCardProps) {
   const isCenter = position === "center";
-  const { avatarSrc, onAvatarError } = useEntityAvatar(entity.avatarUrl);
+  const { imageSrc, onImageError } = useEntityImage(entity.imageUrl);
 
   return (
     <button
@@ -28,9 +28,9 @@ function EntityCard({ entity, position, onSelect, compact }: EntityCardProps) {
       {/* Image area — grows to fill available space, image contained with padding */}
       <div className="flex min-h-0 flex-1 items-center justify-center p-4">
         <img
-          src={avatarSrc}
+          src={imageSrc}
           alt={entity.name}
-          onError={onAvatarError}
+          onError={onImageError}
           loading="lazy"
           className="h-full w-full object-contain"
         />
@@ -52,9 +52,9 @@ function EntityCard({ entity, position, onSelect, compact }: EntityCardProps) {
           {entity.name}
         </span>
 
-        {!compact && isCenter && entity.origin && (
+        {!compact && isCenter && (
           <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.3em] text-primary-light/40">
-            {entity.origin}
+            {entity.entityType.label}
           </span>
         )}
       </div>

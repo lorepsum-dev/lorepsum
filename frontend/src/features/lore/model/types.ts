@@ -54,7 +54,6 @@ export interface Lore {
   id: number;
   name: string;
   description: string;
-  slug: string;
   features: LoreFeature[];
   sidebarGroups: LoreSidebarGroup[];
   entityModalPresentation: LoreEntityModalPresentation;
@@ -81,9 +80,12 @@ export interface Entity {
   id: number;
   name: string;
   description: string;
-  avatarUrl: string | null;
-  gender: string | null;
-  origin: string | null;
+  imageUrl: string | null;
+  entityType: {
+    id: number;
+    key: string;
+    label: string;
+  };
   categories: EntityCategoryAxis[];
   groups: EntityGroup[];
 }
@@ -95,11 +97,9 @@ export interface Relationship {
   type: {
     id: number;
     key: string;
-    familyKey: string;
     forwardLabel: string;
     reverseLabel: string;
     isSymmetric: boolean;
-    isHierarchical: boolean;
   };
 }
 

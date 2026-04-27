@@ -57,9 +57,12 @@ interface ApiEntity {
   id: number;
   name: string;
   description: string;
-  avatar_url: string | null;
-  gender: string | null;
-  origin: string | null;
+  image_url: string | null;
+  entity_type: {
+    id: number;
+    key: string;
+    label: string;
+  };
   categories: ApiEntityCategoryAxis[];
   groups: ApiEntityGroup[];
 }
@@ -71,11 +74,9 @@ interface ApiRelationship {
   relationship_type: {
     id: number;
     key: string;
-    family_key: string;
     forward_label: string;
     reverse_label: string;
     is_symmetric: boolean;
-    is_hierarchical: boolean;
   };
 }
 
@@ -94,7 +95,6 @@ interface ApiLore {
   id: number;
   name: string;
   description: string;
-  slug: string;
   features: ApiLoreFeature[];
   sidebar_groups: ApiLoreSidebarGroup[];
   entity_modal_presentation: {
@@ -187,9 +187,12 @@ function normalizeEntity(entity: ApiEntity): Entity {
     id: entity.id,
     name: entity.name,
     description: entity.description,
-    avatarUrl: entity.avatar_url,
-    gender: entity.gender,
-    origin: entity.origin,
+    imageUrl: entity.image_url,
+    entityType: {
+      id: entity.entity_type.id,
+      key: entity.entity_type.key,
+      label: entity.entity_type.label,
+    },
     categories: entity.categories.map(normalizeCategoryAxis),
     groups: entity.groups.map(normalizeGroup),
   };
@@ -203,11 +206,9 @@ function normalizeRelationship(relationship: ApiRelationship): Relationship {
     type: {
       id: relationship.relationship_type.id,
       key: relationship.relationship_type.key,
-      familyKey: relationship.relationship_type.family_key,
       forwardLabel: relationship.relationship_type.forward_label,
       reverseLabel: relationship.relationship_type.reverse_label,
       isSymmetric: relationship.relationship_type.is_symmetric,
-      isHierarchical: relationship.relationship_type.is_hierarchical,
     },
   };
 }
@@ -237,7 +238,6 @@ function normalizeLore(lore: ApiLore): Lore {
     id: lore.id,
     name: lore.name,
     description: lore.description,
-    slug: lore.slug,
     features: lore.features.map(normalizeFeature),
     sidebarGroups: lore.sidebar_groups.map(normalizeSidebarGroup),
     entityModalPresentation: {

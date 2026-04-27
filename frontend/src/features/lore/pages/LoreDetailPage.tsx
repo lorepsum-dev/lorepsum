@@ -20,10 +20,10 @@ const EMPTY_NARRATIVES: Narrative[] = [];
 const EMPTY_SIDEBAR_GROUPS: LoreSidebarGroup[] = [];
 
 function LoreDetailPage() {
-  const { slug } = useParams<{ slug: string }>();
-  const safeSlug = slug ?? "";
+  const { id } = useParams<{ id: string }>();
+  const safeLoreId = id ?? "";
   const [sidebarMode, setSidebarMode] = useState<"all" | "grouped">("grouped");
-  const lorePageQuery = useLorePageData(safeSlug);
+  const lorePageQuery = useLorePageData(safeLoreId);
   const lorePage = lorePageQuery.data;
   const graph = lorePage?.graph;
   const entities = graph?.nodes ?? EMPTY_ENTITIES;
@@ -51,7 +51,7 @@ function LoreDetailPage() {
     element.scrollLeft = (element.scrollWidth - element.clientWidth) / 2;
   }, [forest.length, scrollRef]);
 
-  if (!safeSlug) {
+  if (!safeLoreId) {
     return <NotFound />;
   }
 
@@ -74,7 +74,7 @@ function LoreDetailPage() {
           feature={feature}
           isFirst={index === 0}
           nextFeature={collection[index + 1] ?? null}
-          loreTitle={lore?.name ?? safeSlug}
+          loreTitle={lore?.name ?? safeLoreId}
           loreDescription={lore?.description}
           onNext={() => scrollToSection(index + 1)}
           sectionRef={setSectionRef(index)}

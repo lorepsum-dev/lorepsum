@@ -1,8 +1,10 @@
 import type { Entity, Relationship, TreeNode } from "./types";
 
+const TREE_RELATIONSHIP_TYPE_KEY = "parent_of";
+
 export function buildTree(entities: Entity[], relationships: Relationship[]): TreeNode[] {
   const entitiesById = new Map(entities.map((entity) => [entity.id, entity]));
-  const parentLinks = relationships.filter((relationship) => relationship.type.isHierarchical);
+  const parentLinks = relationships.filter((relationship) => relationship.type.key === TREE_RELATIONSHIP_TYPE_KEY);
   const childrenByParentId = new Map<number, number[]>();
   const parentsByChildId = new Map<number, number[]>();
 

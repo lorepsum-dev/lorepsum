@@ -4,7 +4,6 @@ interface LoreListItem {
   id: number;
   name: string;
   description: string;
-  slug: string;
 }
 
 async function listLores(): Promise<LoreListItem[]> {

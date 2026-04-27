@@ -19,7 +19,7 @@ function LoreCardList({ lores, isLoading }: LoreCardListProps) {
           key={lore.id}
           name={lore.name}
           description={lore.description}
-          to={`/lores/${lore.slug}`}
+          to={`/lores/${lore.id}`}
         />
       ))}
     </>

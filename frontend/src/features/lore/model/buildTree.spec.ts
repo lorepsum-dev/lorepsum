@@ -7,9 +7,8 @@ const entities: Entity[] = [
     id: 1,
     name: "Chaos",
     description: "Root entity",
-    avatarUrl: null,
-    gender: null,
-    origin: null,
+    imageUrl: null,
+    entityType: { id: 1, key: "character", label: "Character" },
     categories: [],
     groups: [],
   },
@@ -17,9 +16,8 @@ const entities: Entity[] = [
     id: 2,
     name: "Gaia",
     description: "Child entity",
-    avatarUrl: null,
-    gender: null,
-    origin: null,
+    imageUrl: null,
+    entityType: { id: 1, key: "character", label: "Character" },
     categories: [],
     groups: [],
   },
@@ -27,9 +25,8 @@ const entities: Entity[] = [
     id: 3,
     name: "Uranus",
     description: "Second child entity",
-    avatarUrl: null,
-    gender: null,
-    origin: null,
+    imageUrl: null,
+    entityType: { id: 1, key: "character", label: "Character" },
     categories: [],
     groups: [],
   },
@@ -39,26 +36,24 @@ function createRelationship(
   id: number,
   sourceEntityId: number,
   targetEntityId: number,
-  isHierarchical: boolean,
+  isTreeRelationship: boolean,
 ): Relationship {
   return {
     id,
     sourceEntityId,
     targetEntityId,
     type: {
-      id: isHierarchical ? 1 : 2,
-      key: isHierarchical ? "parent_of" : "ally_of",
-      familyKey: isHierarchical ? "kinship" : "alliance",
-      forwardLabel: isHierarchical ? "Parent of" : "Ally of",
-      reverseLabel: isHierarchical ? "Child of" : "Ally of",
-      isSymmetric: !isHierarchical,
-      isHierarchical,
+      id: isTreeRelationship ? 1 : 2,
+      key: isTreeRelationship ? "parent_of" : "associated_with",
+      forwardLabel: isTreeRelationship ? "Parent of" : "Associated with",
+      reverseLabel: isTreeRelationship ? "Child of" : "Associated with",
+      isSymmetric: !isTreeRelationship,
     },
   };
 }
 
 describe("buildTree", () => {
-  it("builds a forest from hierarchical relationships", () => {
+  it("builds a forest from parent relationships", () => {
     const relationships: Relationship[] = [
       createRelationship(1, 1, 2, true),
       createRelationship(2, 2, 3, true),
@@ -72,7 +67,7 @@ describe("buildTree", () => {
     expect(forest[0].children[0].children[0].entity.name).toBe("Uranus");
   });
 
-  it("ignores non-hierarchical relationships", () => {
+  it("ignores relationships that are not tree projections", () => {
     const relationships: Relationship[] = [
       createRelationship(3, 1, 2, false),
     ];

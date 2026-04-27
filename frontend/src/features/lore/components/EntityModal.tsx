@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useEntityAvatar } from "../hooks/useEntityAvatar";
+import { useEntityImage } from "../hooks/useEntityImage";
 import { mapEntityModal } from "../model/mapEntityModal";
 import type { Entity, LoreEntityModalPresentation, Relationship } from "../model/types";
 
@@ -40,7 +40,7 @@ function EntityModal({
     () => mapEntityModal(entity, relationships, entities, entityModalPresentation),
     [entity, relationships, entities, entityModalPresentation],
   );
-  const { avatarSrc, onAvatarError } = useEntityAvatar(entity.avatarUrl);
+  const { imageSrc, onImageError } = useEntityImage(entity.imageUrl);
   const [isShowingBack, setIsShowingBack] = useState(false);
   const [expandedGroupKeys, setExpandedGroupKeys] = useState<string[]>(() =>
     getDefaultExpandedGroupKeys(modalData.relationshipGroups),
@@ -121,11 +121,9 @@ function EntityModal({
                 }}
               >
                 <div className="mb-4 flex min-h-[24px] items-center">
-                  {entity.origin && (
-                    <span className="font-display text-xs uppercase tracking-[0.25em] text-primary-light/80">
-                      {entity.origin}
-                    </span>
-                  )}
+                  <span className="font-display text-xs uppercase tracking-[0.25em] text-primary-light/80">
+                    {entity.entityType.label}
+                  </span>
                   {modalData.badgeLabel && (
                     <span className="ml-auto rounded-full border border-primary-light/30 bg-primary/30 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-light">
                       {modalData.badgeLabel}
@@ -230,14 +228,8 @@ function EntityModal({
                         </div>
                       )}
 
-                      {(modalData.labeledCategories.length > 0 || entity.gender) && (
+                      {modalData.labeledCategories.length > 0 && (
                         <div className="flex flex-col gap-1 font-mono text-xs">
-                          {entity.gender && (
-                            <div className="flex gap-2">
-                              <span className="shrink-0 text-primary-light/40">gender:</span>
-                              <span className="text-muted-foreground">{entity.gender}</span>
-                            </div>
-                          )}
                           {modalData.labeledCategories.map(([axis, values]) => (
                             <div key={axis} className="flex gap-2">
                               <span className="shrink-0 text-primary-light/40">{axis}:</span>
@@ -262,11 +254,9 @@ function EntityModal({
                 }}
               >
                 <div className="mb-4 flex min-h-[24px] items-center">
-                  {entity.origin && (
-                    <span className="font-display text-xs uppercase tracking-[0.25em] text-primary-light/80">
-                      {entity.origin}
-                    </span>
-                  )}
+                  <span className="font-display text-xs uppercase tracking-[0.25em] text-primary-light/80">
+                    {entity.entityType.label}
+                  </span>
                   {modalData.badgeLabel && (
                     <span className="ml-auto rounded-full border border-primary-light/30 bg-primary/30 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-light">
                       {modalData.badgeLabel}
@@ -280,9 +270,9 @@ function EntityModal({
 
                 <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-xl border border-primary-light/12 bg-secondary/60">
                   <img
-                    src={avatarSrc}
+                    src={imageSrc}
                     alt={entity.name}
-                    onError={onAvatarError}
+                    onError={onImageError}
                     loading="lazy"
                     className="h-full w-full object-contain object-center"
                   />

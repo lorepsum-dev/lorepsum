@@ -7,9 +7,8 @@ const entities: Entity[] = [
     id: 1,
     name: "Zeus",
     description: "Olympian entity",
-    avatarUrl: null,
-    gender: "male",
-    origin: "Greece",
+    imageUrl: null,
+    entityType: { id: 1, key: "character", label: "Character" },
     categories: [
       {
         key: "habitat",
@@ -23,9 +22,8 @@ const entities: Entity[] = [
     id: 2,
     name: "Cronus",
     description: "Titan entity",
-    avatarUrl: null,
-    gender: "male",
-    origin: "Greece",
+    imageUrl: null,
+    entityType: { id: 1, key: "character", label: "Character" },
     categories: [
       {
         key: "lineage",

@@ -6,9 +6,8 @@ const entity: Entity = {
   id: 1,
   name: "Zeus",
   description: "King of the gods",
-  avatarUrl: null,
-  gender: "male",
-  origin: "Greece",
+  imageUrl: null,
+  entityType: { id: 1, key: "character", label: "Character" },
   categories: [
     {
       key: "habitat",
@@ -38,9 +37,8 @@ const parent: Entity = {
   id: 2,
   name: "Cronus",
   description: "Titan parent",
-  avatarUrl: null,
-  gender: "male",
-  origin: "Greece",
+  imageUrl: null,
+  entityType: { id: 1, key: "character", label: "Character" },
   categories: [],
   groups: [],
 };
@@ -49,9 +47,8 @@ const spouse: Entity = {
   id: 3,
   name: "Hera",
   description: "Queen of the gods",
-  avatarUrl: null,
-  gender: "female",
-  origin: "Greece",
+  imageUrl: null,
+  entityType: { id: 1, key: "character", label: "Character" },
   categories: [],
   groups: [],
 };
@@ -60,9 +57,8 @@ const child: Entity = {
   id: 4,
   name: "Ares",
   description: "War god",
-  avatarUrl: null,
-  gender: "male",
-  origin: "Greece",
+  imageUrl: null,
+  entityType: { id: 1, key: "character", label: "Character" },
   categories: [],
   groups: [],
 };
@@ -75,11 +71,9 @@ const relationships: Relationship[] = [
     type: {
       id: 1,
       key: "parent_of",
-      familyKey: "kinship",
       forwardLabel: "Parent of",
       reverseLabel: "Child of",
       isSymmetric: false,
-      isHierarchical: true,
     },
   },
   {
@@ -89,11 +83,9 @@ const relationships: Relationship[] = [
     type: {
       id: 2,
       key: "spouse_of",
-      familyKey: "kinship",
       forwardLabel: "Spouse of",
       reverseLabel: "Spouse of",
       isSymmetric: true,
-      isHierarchical: false,
     },
   },
   {
@@ -103,11 +95,9 @@ const relationships: Relationship[] = [
     type: {
       id: 1,
       key: "parent_of",
-      familyKey: "kinship",
       forwardLabel: "Parent of",
       reverseLabel: "Child of",
       isSymmetric: false,
-      isHierarchical: true,
     },
   },
 ];
