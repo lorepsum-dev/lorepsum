@@ -7,13 +7,13 @@ SELECT setval(
 );
 
 INSERT INTO features (name, description)
-VALUES ('relationship-graph', 'Explore all entity relationships as a network.')
+VALUES ('Graph', 'Explore all entity relationships as a network.')
 ON CONFLICT (name) DO NOTHING;
 
 WITH graph_feature AS (
     SELECT id
     FROM features
-    WHERE name = 'relationship-graph'
+    WHERE name = 'Graph'
 ),
 target_lores AS (
     SELECT DISTINCT lore_id
@@ -35,7 +35,7 @@ WITH ordered_features AS (
         lf.feature_id,
         CASE f.name
             WHEN 'cards' THEN 1
-            WHEN 'relationship-graph' THEN 2
+            WHEN 'Graph' THEN 2
             WHEN 'narratives' THEN 3
             WHEN 'tree' THEN 4
             ELSE lf.display_order
@@ -43,7 +43,7 @@ WITH ordered_features AS (
     FROM lore_features lf
     INNER JOIN features f
         ON f.id = lf.feature_id
-    WHERE f.name IN ('cards', 'relationship-graph', 'narratives', 'tree')
+    WHERE f.name IN ('cards', 'Graph', 'narratives', 'tree')
 )
 UPDATE lore_features lf
 SET display_order = ordered_features.next_display_order

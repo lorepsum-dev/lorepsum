@@ -13,7 +13,6 @@ import type {
 
 interface ApiLoreFeature {
   id: number;
-  key: string;
   label: string;
   description: string | null;
   display_order: number;
@@ -137,7 +136,6 @@ interface ApiLorePageResponse {
 function normalizeFeature(feature: ApiLoreFeature): LoreFeature {
   return {
     id: feature.id,
-    key: feature.key,
     label: feature.label,
     description: feature.description,
     displayOrder: feature.display_order,

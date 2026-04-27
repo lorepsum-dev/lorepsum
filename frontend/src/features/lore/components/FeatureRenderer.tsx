@@ -5,6 +5,13 @@ import LoreNarrativesSection from "./LoreNarrativesSection";
 import LoreTreeSection from "./LoreTreeSection";
 import type { Entity, LoreFeature, Narrative, Relationship, TreeNode } from "../model/types";
 
+const FEATURE_IDS = {
+  tree: 1,
+  narratives: 2,
+  cards: 3,
+  graph: 4,
+} as const;
+
 interface FeatureRendererProps {
   feature: LoreFeature;
   forest: TreeNode[];
@@ -21,14 +28,14 @@ interface FeatureRendererProps {
 }
 
 const featureComponents = {
-  "entity-cards": ({ entities, isLoading, onSelectEntity }: FeatureRendererProps) => (
+  [FEATURE_IDS.cards]: ({ entities, isLoading, onSelectEntity }: FeatureRendererProps) => (
     <LoreCardsSection
       entities={entities}
       isLoading={isLoading}
       onSelectEntity={onSelectEntity}
     />
   ),
-  "relationship-tree": ({
+  [FEATURE_IDS.tree]: ({
     forest,
     isLoading,
     selectedId,
@@ -49,7 +56,7 @@ const featureComponents = {
       onMouseUp={onMouseUp}
     />
   ),
-  "relationship-graph": ({
+  [FEATURE_IDS.graph]: ({
     entities,
     relationships,
     isLoading,
@@ -64,7 +71,7 @@ const featureComponents = {
       onSelectEntity={onSelectEntity}
     />
   ),
-  narratives: ({ narratives, entities, onSelectEntity }: FeatureRendererProps) => (
+  [FEATURE_IDS.narratives]: ({ narratives, entities, onSelectEntity }: FeatureRendererProps) => (
     <LoreNarrativesSection
       narratives={narratives}
       entities={entities}
@@ -74,7 +81,7 @@ const featureComponents = {
 } satisfies Record<string, (props: FeatureRendererProps) => ReactNode>;
 
 function FeatureRenderer(props: FeatureRendererProps) {
-  const renderFeature = featureComponents[props.feature.key];
+  const renderFeature = featureComponents[props.feature.id];
 
   if (!renderFeature) {
     return null;

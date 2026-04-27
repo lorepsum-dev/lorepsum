@@ -1,9 +1,3 @@
-const FEATURE_KEY_ALIASES = {
-    cards: 'entity-cards',
-    tree: 'relationship-tree',
-    narratives: 'narratives'
-};
-
 function normalizeKey(value) {
     return (
         String(value ?? '')
@@ -16,18 +10,11 @@ function normalizeKey(value) {
     );
 }
 
-function toFeatureKey(label) {
-    const normalized = normalizeKey(label);
-
-    return FEATURE_KEY_ALIASES[normalized] ?? normalized;
-}
-
 function toMetadataKey(label) {
     return normalizeKey(label);
 }
 
 module.exports = {
     normalizeKey,
-    toFeatureKey,
     toMetadataKey
 };

@@ -1,6 +1,5 @@
 export interface LoreFeature {
   id: number;
-  key: string;
   label: string;
   description: string | null;
   displayOrder: number;

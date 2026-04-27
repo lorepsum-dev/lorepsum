@@ -1,5 +1,5 @@
 const SetSchema = require('../../../config/db');
-const { toFeatureKey, toMetadataKey } = require('../../../utils/keys');
+const { toMetadataKey } = require('../../../utils/keys');
 const pool = SetSchema('public');
 
 const loreCatalogConstraint = `
@@ -53,10 +53,6 @@ const loresRepository = {
             SELECT
                 f.id,
                 f.name,
-                CASE
-                    WHEN f.name = 'relationship-graph' THEN 'Graph'
-                    ELSE f.name
-                END AS label,
                 f.description,
                 lf.display_order
             FROM lore_features lf
@@ -68,8 +64,7 @@ const loresRepository = {
 
         return rows.map((row) => ({
             id: row.id,
-            key: toFeatureKey(row.name),
-            label: row.label,
+            label: row.name,
             description: row.description,
             display_order: row.display_order
         }));
