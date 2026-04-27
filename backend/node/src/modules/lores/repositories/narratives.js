@@ -3,7 +3,7 @@ const { toMetadataKey } = require('../../../utils/keys');
 const pool = SetSchema('public');
 
 const narrativesRepository = {
-    async findAllByLoreSlug(slug) {
+    async findAllByLoreId(loreId) {
         const { rows } = await pool.query(`
             SELECT
                 n.id,
@@ -13,12 +13,10 @@ const narrativesRepository = {
                 n.content,
                 n.display_order,
                 n.category
-            FROM lores l
-            INNER JOIN narratives n
-                ON n.lore_id = l.id
-            WHERE l.slug = $1
+            FROM narratives n
+            WHERE n.lore_id = $1
             ORDER BY n.display_order ASC, n.id ASC
-        `, [slug]);
+        `, [loreId]);
 
         return rows.map((row) => ({
             ...row,

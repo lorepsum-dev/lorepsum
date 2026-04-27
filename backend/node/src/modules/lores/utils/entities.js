@@ -15,9 +15,15 @@ function mapEntityRows(rows) {
                 id: row.id,
                 name: row.name,
                 description: row.description,
-                avatar_url: row.avatar_url || null,
-                gender: row.gender,
-                origin: row.origin,
+                image_url: row.image_url || null,
+                avatar_url: row.image_url || null,
+                entity_type: {
+                    id: row.entity_type_id,
+                    key: row.entity_type_key,
+                    label: row.entity_type_label
+                },
+                gender: null,
+                origin: null,
                 categories: [],
                 groups: []
             });

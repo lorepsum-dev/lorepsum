@@ -2,8 +2,8 @@ const entitiesRepository = require('../repositories/entities');
 const { getLoreOrNull } = require('./context');
 
 const entitiesService = {
-    async listByLoreSlug(slug) {
-        const lore = await getLoreOrNull(slug);
+    async listByLoreId(loreId) {
+        const lore = await getLoreOrNull(loreId);
 
         if (!lore) {
             return null;
@@ -11,12 +11,12 @@ const entitiesService = {
 
         return {
             lore,
-            entities: await entitiesRepository.findAllByLoreSlug(slug)
+            entities: await entitiesRepository.findAllByLoreId(lore.id)
         };
     },
 
-    async findById(slug, id) {
-        const lore = await getLoreOrNull(slug);
+    async findById(loreId, id) {
+        const lore = await getLoreOrNull(loreId);
 
         if (!lore) {
             return null;
@@ -24,12 +24,12 @@ const entitiesService = {
 
         return {
             lore,
-            entity: await entitiesRepository.findByIdAndLoreSlug(slug, id)
+            entity: await entitiesRepository.findByIdAndLoreId(lore.id, id)
         };
     },
 
-    async findByField(slug, field, value) {
-        const lore = await getLoreOrNull(slug);
+    async findByField(loreId, field, value) {
+        const lore = await getLoreOrNull(loreId);
 
         if (!lore) {
             return null;
@@ -37,7 +37,7 @@ const entitiesService = {
 
         return {
             lore,
-            entities: await entitiesRepository.findByFieldAndLoreSlug(slug, field, value)
+            entities: await entitiesRepository.findByFieldAndLoreId(lore.id, field, value)
         };
     }
 };

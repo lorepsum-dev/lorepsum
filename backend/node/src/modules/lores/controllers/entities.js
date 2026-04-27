@@ -2,9 +2,9 @@ const entitiesService = require('../services/entities');
 const { sendJson } = require('../../../utils/responses');
 
 const entitiesController = {
-    async listByLoreSlug(req, res) {
+    async listByLoreId(req, res) {
         try {
-            const data = await entitiesService.listByLoreSlug(req.params.slug);
+            const data = await entitiesService.listByLoreId(req.params.loreId);
 
             if (!data) {
                 return sendJson(res, 404, {
@@ -31,7 +31,7 @@ const entitiesController = {
 
     async byId(req, res) {
         try {
-            const data = await entitiesService.findById(req.params.slug, req.params.id);
+            const data = await entitiesService.findById(req.params.loreId, req.params.id);
 
             if (!data) {
                 return sendJson(res, 404, {
@@ -65,7 +65,7 @@ const entitiesController = {
     async findBy(req, res) {
         try {
             const data = await entitiesService.findByField(
-                req.params.slug,
+                req.params.loreId,
                 req.params.field,
                 req.params.value
             );

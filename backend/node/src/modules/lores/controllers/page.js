@@ -2,9 +2,9 @@ const lorePageService = require('../services/page');
 const { sendJson } = require('../../../utils/responses');
 
 const lorePageController = {
-    async bySlug(req, res) {
+    async byId(req, res) {
         try {
-            const data = await lorePageService.findBySlug(req.params.slug);
+            const data = await lorePageService.findById(req.params.loreId);
 
             if (!data) {
                 return sendJson(res, 404, {

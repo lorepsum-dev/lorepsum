@@ -2,9 +2,9 @@ const relationshipsService = require('../services/relationships');
 const { sendJson } = require('../../../utils/responses');
 
 const relationshipsController = {
-    async listByLoreSlug(req, res) {
+    async listByLoreId(req, res) {
         try {
-            const data = await relationshipsService.listByLoreSlug(req.params.slug);
+            const data = await relationshipsService.listByLoreId(req.params.loreId);
 
             if (!data) {
                 return sendJson(res, 404, {

@@ -6,8 +6,8 @@ const entityModalPresentationRepository = require('../repositories/entityModalPr
 const { getLoreOrNull } = require('./context');
 
 const lorePageService = {
-    async findBySlug(slug) {
-        const lore = await getLoreOrNull(slug);
+    async findById(loreId) {
+        const lore = await getLoreOrNull(loreId);
 
         if (!lore) {
             return null;
@@ -24,9 +24,9 @@ const lorePageService = {
             loresRepository.findFeaturesByLoreId(lore.id),
             loresRepository.findSidebarGroupsByLoreId(lore.id),
             entityModalPresentationRepository.findByLoreId(lore.id),
-            entitiesRepository.findAllByLoreSlug(slug),
-            relationshipsRepository.findAllByLoreSlug(slug),
-            narrativesRepository.findAllByLoreSlug(slug)
+            entitiesRepository.findAllByLoreId(lore.id),
+            relationshipsRepository.findAllByLoreId(lore.id),
+            narrativesRepository.findAllByLoreId(lore.id)
         ]);
 
         return {

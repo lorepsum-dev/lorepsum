@@ -7,8 +7,8 @@ const loresService = {
         return loresRepository.findAll();
     },
 
-    async findBySlug(slug) {
-        const lore = await getLoreOrNull(slug);
+    async findById(loreId) {
+        const lore = await getLoreOrNull(loreId);
 
         if (!lore) {
             return null;
@@ -28,8 +28,8 @@ const loresService = {
         };
     },
 
-    async listFeatures(slug) {
-        const lore = await getLoreOrNull(slug);
+    async listFeatures(loreId) {
+        const lore = await getLoreOrNull(loreId);
 
         if (!lore) {
             return null;
@@ -41,8 +41,8 @@ const loresService = {
         };
     },
 
-    async listSidebarGroups(slug) {
-        const lore = await getLoreOrNull(slug);
+    async listSidebarGroups(loreId) {
+        const lore = await getLoreOrNull(loreId);
 
         if (!lore) {
             return null;

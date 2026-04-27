@@ -2,8 +2,8 @@ const narrativesRepository = require('../repositories/narratives');
 const { getLoreOrNull } = require('./context');
 
 const narrativesService = {
-    async listByLoreSlug(slug) {
-        const lore = await getLoreOrNull(slug);
+    async listByLoreId(loreId) {
+        const lore = await getLoreOrNull(loreId);
 
         if (!lore) {
             return null;
@@ -11,7 +11,7 @@ const narrativesService = {
 
         return {
             lore,
-            narratives: await narrativesRepository.findAllByLoreSlug(slug)
+            narratives: await narrativesRepository.findAllByLoreId(lore.id)
         };
     }
 };

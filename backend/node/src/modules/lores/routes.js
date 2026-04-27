@@ -11,78 +11,78 @@ const routes = [
         handler: loresController.listAll
     },
     {
-        pattern: /^\/lores\/([a-z0-9-]+)\/page$/,
+        pattern: /^\/lores\/(\d+)\/page$/,
         method: 'GET',
-        handler: pageController.bySlug,
+        handler: pageController.byId,
         getParams: (match) => ({
-            slug: match[1]
+            loreId: match[1]
         })
     },
     {
-        pattern: /^\/lores\/([a-z0-9-]+)$/,
+        pattern: /^\/lores\/(\d+)$/,
         method: 'GET',
-        handler: loresController.bySlug,
+        handler: loresController.byId,
         getParams: (match) => ({
-            slug: match[1]
+            loreId: match[1]
         })
     },
     {
-        pattern: /^\/lores\/([a-z0-9-]+)\/entities$/,
+        pattern: /^\/lores\/(\d+)\/entities$/,
         method: 'GET',
-        handler: entitiesController.listByLoreSlug,
+        handler: entitiesController.listByLoreId,
         getParams: (match) => ({
-            slug: match[1]
+            loreId: match[1]
         })
     },
     {
-        pattern: /^\/lores\/([a-z0-9-]+)\/entities\/(\d+)$/,
+        pattern: /^\/lores\/(\d+)\/entities\/(\d+)$/,
         method: 'GET',
         handler: entitiesController.byId,
         getParams: (match) => ({
-            slug: match[1],
+            loreId: match[1],
             id: match[2]
         })
     },
     {
-        pattern: /^\/lores\/([a-z0-9-]+)\/entities\/([a-z_]+)\/([^/]+)$/,
+        pattern: /^\/lores\/(\d+)\/entities\/([a-z_]+)\/([^/]+)$/,
         method: 'GET',
         handler: entitiesController.findBy,
         getParams: (match) => ({
-            slug: match[1],
+            loreId: match[1],
             field: match[2],
             value: decodeURIComponent(match[3])
         })
     },
     {
-        pattern: /^\/lores\/([a-z0-9-]+)\/relationships$/,
+        pattern: /^\/lores\/(\d+)\/relationships$/,
         method: 'GET',
-        handler: relationshipsController.listByLoreSlug,
+        handler: relationshipsController.listByLoreId,
         getParams: (match) => ({
-            slug: match[1]
+            loreId: match[1]
         })
     },
     {
-        pattern: /^\/lores\/([a-z0-9-]+)\/narratives$/,
+        pattern: /^\/lores\/(\d+)\/narratives$/,
         method: 'GET',
-        handler: narrativesController.listByLoreSlug,
+        handler: narrativesController.listByLoreId,
         getParams: (match) => ({
-            slug: match[1]
+            loreId: match[1]
         })
     },
     {
-        pattern: /^\/lores\/([a-z0-9-]+)\/features$/,
+        pattern: /^\/lores\/(\d+)\/features$/,
         method: 'GET',
         handler: loresController.listFeatures,
         getParams: (match) => ({
-            slug: match[1]
+            loreId: match[1]
         })
     },
     {
-        pattern: /^\/lores\/([a-z0-9-]+)\/sidebar-groups$/,
+        pattern: /^\/lores\/(\d+)\/sidebar-groups$/,
         method: 'GET',
         handler: loresController.listSidebarGroups,
         getParams: (match) => ({
-            slug: match[1]
+            loreId: match[1]
         })
     }
 ];

@@ -3,9 +3,9 @@ const pool = SetSchema('public');
 const { mapEntityRows } = require('../utils/entities');
 
 const ALLOWED_FIELDS = {
-    gender: 'g.name',
-    origin: 'o.name',
-    category: 'cat.name'
+    category: 'cat.name',
+    entity_type: 'et.key',
+    type: 'et.key'
 };
 
 const baseQuery = `
@@ -13,54 +13,51 @@ const baseQuery = `
         e.id,
         e.name,
         e.description,
-        e.avatar_url,
+        e.image_url,
+        et.id AS entity_type_id,
+        et.key AS entity_type_key,
+        et.label AS entity_type_label,
         ax.name AS axis_label,
         cat.name AS category_label,
-        g.name AS gender,
-        o.name AS origin,
         gr.name AS group_label,
         gr.description AS group_description
-    FROM lores l
-    INNER JOIN origins o
-        ON o.lore_id = l.id
-    INNER JOIN entities e
-        ON e.origin_id = o.id
+    FROM entities e
+    INNER JOIN entity_types et
+        ON et.id = e.entity_type_id
     LEFT JOIN entity_categories ec
         ON e.id = ec.entity_id
     LEFT JOIN categories cat
         ON ec.category_id = cat.id
     LEFT JOIN category_axes ax
         ON ax.id = cat.axis_id
-    LEFT JOIN genders g
-        ON e.gender_id = g.id
     LEFT JOIN entity_groups eg
         ON e.id = eg.entity_id
     LEFT JOIN groups gr
         ON eg.group_id = gr.id
-    WHERE l.slug = $1
+    WHERE e.lore_id = $1
 `;
 
 const entitiesRepository = {
-    async findAllByLoreSlug(slug) {
+    async findAllByLoreId(loreId) {
         const { rows } = await pool.query(`
             ${baseQuery}
             ORDER BY e.id
-        `, [slug]);
+        `, [loreId]);
 
         return mapEntityRows(rows);
     },
 
-    async findByIdAndLoreSlug(slug, id) {
+    async findByIdAndLoreId(loreId, id) {
         const { rows } = await pool.query(`
             ${baseQuery}
             AND e.id = $2
             ORDER BY e.id
-        `, [slug, id]);
+        `, [loreId, id]);
 
         return mapEntityRows(rows)[0] ?? null;
     },
 
-    async findByFieldAndLoreSlug(slug, field, value) {
+    async findByFieldAndLoreId(loreId, field, value) {
         const column = ALLOWED_FIELDS[field];
 
         if (!column) {
@@ -71,7 +68,7 @@ const entitiesRepository = {
             ${baseQuery}
             AND ${column} = $2
             ORDER BY e.id
-        `, [slug, value]);
+        `, [loreId, value]);
 
         return mapEntityRows(rows);
     }

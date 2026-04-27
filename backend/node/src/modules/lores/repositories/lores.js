@@ -13,7 +13,14 @@ const loreCatalogConstraint = `
 const loresRepository = {
     async findAll() {
         const { rows } = await pool.query(`
-            SELECT id, name, description, slug
+            SELECT
+                id,
+                name,
+                description,
+                id::text AS slug,
+                owner_id,
+                category_id,
+                visibility_id
             FROM lores
             WHERE ${loreCatalogConstraint}
             ORDER BY id
@@ -22,14 +29,21 @@ const loresRepository = {
         return rows;
     },
 
-    async findBySlug(slug) {
+    async findById(id) {
         const { rows } = await pool.query(`
-            SELECT id, name, description, slug
+            SELECT
+                id,
+                name,
+                description,
+                id::text AS slug,
+                owner_id,
+                category_id,
+                visibility_id
             FROM lores
-            WHERE slug = $1
+            WHERE id = $1
               AND ${loreCatalogConstraint}
             LIMIT 1
-        `, [slug]);
+        `, [id]);
 
         return rows[0] ?? null;
     },

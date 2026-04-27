@@ -1,7 +1,7 @@
 const loresRepository = require('../repositories/lores');
 
-async function getLoreOrNull(slug) {
-    return loresRepository.findBySlug(slug);
+async function getLoreOrNull(loreId) {
+    return loresRepository.findById(loreId);
 }
 
 module.exports = { getLoreOrNull };

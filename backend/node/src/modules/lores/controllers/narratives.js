@@ -2,9 +2,9 @@ const narrativesService = require('../services/narratives');
 const { sendJson } = require('../../../utils/responses');
 
 const narrativesController = {
-    async listByLoreSlug(req, res) {
+    async listByLoreId(req, res) {
         try {
-            const data = await narrativesService.listByLoreSlug(req.params.slug);
+            const data = await narrativesService.listByLoreId(req.params.loreId);
 
             if (!data) {
                 return sendJson(res, 404, {

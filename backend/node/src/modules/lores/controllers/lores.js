@@ -21,9 +21,9 @@ const loresController = {
         }
     },
 
-    async bySlug(req, res) {
+    async byId(req, res) {
         try {
-            const data = await loresService.findBySlug(req.params.slug);
+            const data = await loresService.findById(req.params.loreId);
 
             if (!data) {
                 return sendJson(res, 404, {
@@ -48,7 +48,7 @@ const loresController = {
 
     async listFeatures(req, res) {
         try {
-            const data = await loresService.listFeatures(req.params.slug);
+            const data = await loresService.listFeatures(req.params.loreId);
 
             if (!data) {
                 return sendJson(res, 404, {
@@ -75,7 +75,7 @@ const loresController = {
 
     async listSidebarGroups(req, res) {
         try {
-            const data = await loresService.listSidebarGroups(req.params.slug);
+            const data = await loresService.listSidebarGroups(req.params.loreId);
 
             if (!data) {
                 return sendJson(res, 404, {

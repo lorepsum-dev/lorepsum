@@ -3,16 +3,16 @@ const relationshipsRepository = require('../repositories/relationships');
 const { getLoreOrNull } = require('./context');
 
 const relationshipsService = {
-    async listByLoreSlug(slug) {
-        const lore = await getLoreOrNull(slug);
+    async listByLoreId(loreId) {
+        const lore = await getLoreOrNull(loreId);
 
         if (!lore) {
             return null;
         }
 
         const [nodes, edges] = await Promise.all([
-            entitiesRepository.findAllByLoreSlug(slug),
-            relationshipsRepository.findAllByLoreSlug(slug)
+            entitiesRepository.findAllByLoreId(lore.id),
+            relationshipsRepository.findAllByLoreId(lore.id)
         ]);
 
         return {
