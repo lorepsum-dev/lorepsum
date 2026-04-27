@@ -120,7 +120,7 @@ function LoreTreeSection({
       ) : (
         <div
           ref={scrollRef}
-          className="tree-scroll mx-auto min-h-0 w-full max-w-3xl flex-1 select-none overflow-x-auto overflow-y-auto rounded-xl pb-2"
+          className="tree-scroll mx-auto w-full max-w-3xl select-none overflow-x-auto overflow-y-auto rounded-xl pb-2 max-h-[100rem]"
           style={{ cursor: "grab" }}
           onMouseDown={onMouseDown}
           onMouseMove={onMouseMove}
