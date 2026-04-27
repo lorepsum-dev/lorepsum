@@ -58,6 +58,41 @@ function getPairKey(relationship: Relationship) {
   return `${left}:${right}`;
 }
 
+function getNodeLabelPosition(node: GraphNode, radius: number) {
+  const deltaX = node.x - CENTER_X;
+  const deltaY = node.y - CENTER_Y;
+  const distance = Math.hypot(deltaX, deltaY);
+
+  if (distance < 1) {
+    return {
+      x: 0,
+      y: radius + 17,
+      anchor: "middle" as const,
+      baseline: "hanging" as const,
+    };
+  }
+
+  const unitX = deltaX / distance;
+  const unitY = deltaY / distance;
+  const offset = radius + 14;
+
+  if (Math.abs(unitX) > Math.abs(unitY) * 1.35) {
+    return {
+      x: unitX * offset,
+      y: unitY * offset,
+      anchor: unitX > 0 ? "start" as const : "end" as const,
+      baseline: "middle" as const,
+    };
+  }
+
+  return {
+    x: unitX * offset,
+    y: unitY * offset,
+    anchor: "middle" as const,
+    baseline: unitY > 0 ? "hanging" as const : "auto" as const,
+  };
+}
+
 function getEdgeLabel(relationship: Relationship, perspectiveEntityId: number | null) {
   if (relationship.type?.isSymmetric) {
     return relationship.type.forwardLabel || relationship.type.reverseLabel || relationship.type.key || "related";
@@ -757,6 +792,7 @@ function LoreGraphSection({
                   const isLevelOne = node.level === 1;
                   const isMuted = node.level >= 2 && !isSelected && !isFocused && !isHovered;
                   const nodeRadius = isFocused ? NODE_RADIUS + 8 : isSelected ? NODE_RADIUS + 5 : isLevelOne ? NODE_RADIUS + 2 : NODE_RADIUS;
+                  const labelPosition = getNodeLabelPosition(node, nodeRadius);
                   const nodeColor = isFocused
                     ? "hsl(var(--primary-light))"
                     : isLevelOne
@@ -808,9 +844,14 @@ function LoreGraphSection({
                         strokeWidth={isFocused ? 3 : 2}
                       />
                       <text
-                        x="0"
-                        y={nodeRadius + 16}
-                        textAnchor="middle"
+                        x={labelPosition.x}
+                        y={labelPosition.y}
+                        textAnchor={labelPosition.anchor}
+                        dominantBaseline={labelPosition.baseline}
+                        stroke="hsl(var(--background) / 0.86)"
+                        strokeWidth="3"
+                        strokeLinejoin="round"
+                        style={{ paintOrder: "stroke fill" }}
                         className={cn(
                           "pointer-events-none fill-muted-foreground font-mono text-[10px] opacity-0 transition-all",
                           (isFocused || isHovered || isLevelOne || isSelected) && "opacity-100",
