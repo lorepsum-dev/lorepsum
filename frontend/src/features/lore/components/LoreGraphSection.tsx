@@ -2,6 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  getEntityTypeGraphVisual,
+  getEntityTypeGraphVisualByKey,
+} from "../model/entityTypeVisuals";
 import type { Entity, Relationship } from "../model/types";
 
 interface LoreGraphSectionProps {
@@ -444,6 +448,39 @@ function LoreGraphSection({
     () => buildGraph(visibleEntities, graphRelationships, entityLevels),
     [entityLevels, graphRelationships, visibleEntities],
   );
+  const visibleEntityTypes = useMemo(() => (
+    Array.from(
+      graph.nodes.reduce((types, node) => {
+        const key = node.entity.entityType.key || "unknown";
+
+        if (!types.has(key)) {
+          types.set(key, {
+            key,
+            label: node.entity.entityType.label || key,
+          });
+        }
+
+        return types;
+      }, new Map<string, { key: string; label: string }>()),
+    )
+      .map(([, type]) => type)
+      .sort((left, right) => left.label.localeCompare(right.label))
+  ), [graph.nodes]);
+  const visibleRelationshipTypes = useMemo(() => (
+    Array.from(
+      graph.edges.reduce((types, edge) => {
+        const key = edge.relationship.type.key || "relationship";
+
+        if (!types.has(key)) {
+          types.set(key, edge.relationship.type);
+        }
+
+        return types;
+      }, new Map<string, Relationship["type"]>()),
+    )
+      .map(([, type]) => type)
+      .sort((left, right) => getRelationshipLegendLabel(left).localeCompare(getRelationshipLegendLabel(right)))
+  ), [graph.edges]);
   const graphFitTransform = useMemo(() => getGraphFitTransform(graph.nodes), [graph.nodes]);
   const selectedNode = selectedId ? graph.nodes.find((node) => node.entity.id === selectedId) : null;
   const visibleNodeCount = graph.nodes.length;
@@ -793,11 +830,12 @@ function LoreGraphSection({
                   const isMuted = node.level >= 2 && !isSelected && !isFocused && !isHovered;
                   const nodeRadius = isFocused ? NODE_RADIUS + 8 : isSelected ? NODE_RADIUS + 5 : isLevelOne ? NODE_RADIUS + 2 : NODE_RADIUS;
                   const labelPosition = getNodeLabelPosition(node, nodeRadius);
+                  const typeVisual = getEntityTypeGraphVisual(node.entity);
                   const nodeColor = isFocused
-                    ? "hsl(var(--primary-light))"
+                    ? typeVisual.focusFill
                     : isLevelOne
-                      ? "hsl(var(--primary-light) / 0.68)"
-                      : "hsl(var(--background))";
+                      ? typeVisual.softFill
+                      : "hsl(var(--background) / 0.92)";
                   const nodeOpacity = isMuted ? 0.46 : 1;
 
                   return (
@@ -825,7 +863,7 @@ function LoreGraphSection({
                       {isFocused && (
                         <circle
                           r={nodeRadius + 10}
-                          fill="hsl(var(--primary-light) / 0.12)"
+                          fill={typeVisual.glow}
                           className="pointer-events-none"
                         />
                       )}
@@ -836,11 +874,12 @@ function LoreGraphSection({
                         className={cn(
                           "transition-all",
                           isSelected
-                            ? "stroke-primary-light"
+                            ? ""
                             : isConnectedToSelected
-                              ? "stroke-primary-light/80"
-                              : "stroke-primary-light/45 hover:stroke-primary-light/80",
+                              ? ""
+                              : "",
                         )}
+                        stroke={typeVisual.stroke}
                         strokeWidth={isFocused ? 3 : 2}
                       />
                       <text
@@ -883,22 +922,23 @@ function LoreGraphSection({
                 Entities
               </h4>
               <div className="flex flex-col gap-2 font-mono text-xs text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <span className="h-4 w-4 rounded-full border-2 border-primary-light bg-primary-light shadow-[0_0_14px_hsl(var(--primary-light)/0.4)]" />
-                  Focused entity
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="h-3.5 w-3.5 rounded-full border-2 border-primary-light bg-primary-light/80" />
-                  Expanded entity
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="h-3 w-3 rounded-full border-2 border-primary-light/70 bg-primary-light/60" />
-                  Related entity
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="h-3 w-3 rounded-full border-2 border-primary-light/80 bg-primary-light/30" />
-                  Hovered entity
-                </div>
+                {visibleEntityTypes.map((entityType) => {
+                  const typeVisual = getEntityTypeGraphVisualByKey(entityType.key);
+
+                  return (
+                    <div key={entityType.key} className="flex items-center gap-2">
+                      <span
+                        className="h-3.5 w-3.5 rounded-full border-2"
+                        style={{
+                          backgroundColor: typeVisual.softFill,
+                          borderColor: typeVisual.stroke,
+                          boxShadow: `0 0 12px ${typeVisual.glow}`,
+                        }}
+                      />
+                      {entityType.label}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -907,7 +947,7 @@ function LoreGraphSection({
                 Relationships
               </h4>
               <div className="flex flex-col gap-2">
-                {relationshipTypes.map((relationshipType) => {
+                {visibleRelationshipTypes.map((relationshipType) => {
                   const color = getRelationshipColor(relationshipType.key);
                   const forwardLabel = relationshipType.forwardLabel || relationshipType.key;
                   const reverseLabel = relationshipType.reverseLabel;

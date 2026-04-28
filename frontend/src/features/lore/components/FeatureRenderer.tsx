@@ -3,7 +3,6 @@ import LoreGraphSection from "./LoreGraphSection";
 import LoreCardsSection from "./LoreCardsSection";
 import LoreNarrativesSection from "./LoreNarrativesSection";
 import LoreTreeSection from "./LoreTreeSection";
-import PerspectiveStage from "./perspective/PerspectiveStage";
 import type { Entity, LoreFeature, Narrative, Relationship, TreeNode } from "../model/types";
 
 const FEATURE_IDS = {
@@ -11,10 +10,6 @@ const FEATURE_IDS = {
   narratives: 2,
   cards: 3,
   graph: 4,
-} as const;
-
-const FEATURE_LABELS = {
-  perspectiveStage: "perspective_stage",
 } as const;
 
 interface FeatureRendererProps {
@@ -86,18 +81,6 @@ const featureComponents = {
 } satisfies Record<string, (props: FeatureRendererProps) => ReactNode>;
 
 function FeatureRenderer(props: FeatureRendererProps) {
-  if (props.feature.label === FEATURE_LABELS.perspectiveStage) {
-    return (
-      <PerspectiveStage
-        entities={props.entities}
-        relationships={props.relationships}
-        isLoading={props.isLoading}
-        selectedId={props.selectedId}
-        onSelectEntity={props.onSelectEntity}
-      />
-    );
-  }
-
   const renderFeature = featureComponents[props.feature.id];
 
   if (!renderFeature) {
