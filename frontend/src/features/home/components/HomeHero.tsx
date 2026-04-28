@@ -5,7 +5,7 @@ import { EXAMPLE_LORE_PATH, SIGNUP_PATH } from "../model/homeContent";
 
 const HomeHero = () => {
   return (
-    <section className="relative overflow-hidden">
+    <section id="home" className="relative overflow-hidden">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-[-10%] h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-primary-glow/15 blur-[120px] animate-pulse-glow" />
         <div className="absolute left-[10%] top-[40%] h-[300px] w-[300px] rounded-full bg-accent/10 blur-[100px] animate-drift" />

@@ -1,26 +1,67 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-type NavItem =
-  | { kind: "route"; label: string; to: string }
-  | { kind: "hash"; label: string; hash: string };
+type NavItem = {
+  label: string;
+  section?: string;
+  route?: string;
+};
 
 const items: NavItem[] = [
-  { kind: "route", label: "Home", to: "/" },
-  { kind: "hash", label: "What you can build", hash: "#what-you-can-build" },
-  { kind: "hash", label: "How it works", hash: "#how-it-works" },
-  { kind: "hash", label: "Explore", hash: "#explore" },
-  { kind: "route", label: "Lore's", to: "/lores" },
-  { kind: "route", label: "Owners", to: "/owners" },
+  { label: "Home", section: "home", route: "/" },
+  { label: "What you can build", section: "what-you-can-build" },
+  { label: "How it works", section: "how-it-works" },
+  { label: "Explore", section: "explore" },
+  { label: "Lore's", route: "/lores" },
+  { label: "Owners", route: "/owners" },
 ];
+
+const HOME_SECTION_IDS = ["home", "what-you-can-build", "how-it-works", "explore"];
 
 const Nav = () => {
   const { pathname } = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("home");
 
   const isHome = pathname === "/";
-  const visibleItems = isHome ? items : items.filter((item) => item.kind === "route");
+
+  useEffect(() => {
+    if (!isHome) return;
+
+    setActiveSection("home");
+
+    const elements = HOME_SECTION_IDS.map((id) => document.getElementById(id)).filter(
+      (el): el is HTMLElement => el !== null,
+    );
+    if (elements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: "-40% 0px -55% 0px", threshold: 0 },
+    );
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [isHome]);
+
+  const visibleItems = isHome ? items : items.filter((item) => item.route);
+
+  const isItemActive = (item: NavItem): boolean => {
+    if (isHome && item.section) {
+      return item.section === activeSection;
+    }
+    if (item.route === "/lores") {
+      return pathname === "/lores" || pathname.startsWith("/lores/");
+    }
+    return item.route === pathname;
+  };
 
   const close = () => setIsOpen(false);
 
@@ -63,23 +104,38 @@ const Nav = () => {
 
         <div className="flex flex-col gap-10 pl-5">
           {visibleItems.map((item) => {
-            if (item.kind === "route") {
-              const active =
-                item.to === "/lores"
-                  ? pathname === "/lores" || pathname.startsWith("/lores/")
-                  : pathname === item.to;
-              return (
-                <div key={item.to} className="relative flex items-center gap-3">
-                  <span
+            const useSection = isHome && item.section;
+            const active = isItemActive(item);
+
+            return (
+              <div key={item.label} className="relative flex items-center gap-3">
+                <span
+                  className={cn(
+                    "absolute -left-5 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm leading-none text-primary-light drop-shadow-[0_0_6px_hsl(var(--primary-light))] transition-opacity duration-500",
+                    active ? "opacity-100" : "opacity-0",
+                  )}
+                >
+                  ✦
+                </span>
+                {useSection ? (
+                  <a
+                    href={`#${item.section}`}
+                    onClick={() => {
+                      if (item.section) setActiveSection(item.section);
+                      close();
+                    }}
                     className={cn(
-                      "absolute -left-5 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm leading-none text-primary-light drop-shadow-[0_0_6px_hsl(var(--primary-light))] transition-opacity duration-500",
-                      active ? "opacity-100" : "opacity-0",
+                      "font-display text-xs uppercase tracking-[0.3em] transition-colors",
+                      active
+                        ? "text-primary-light"
+                        : "text-muted-foreground hover:text-foreground",
                     )}
                   >
-                    ✦
-                  </span>
+                    {item.label}
+                  </a>
+                ) : (
                   <Link
-                    to={item.to}
+                    to={item.route!}
                     onClick={close}
                     className={cn(
                       "font-display text-xs uppercase tracking-[0.3em] transition-colors",
@@ -90,19 +146,7 @@ const Nav = () => {
                   >
                     {item.label}
                   </Link>
-                </div>
-              );
-            }
-
-            return (
-              <div key={item.hash} className="relative flex items-center gap-3">
-                <a
-                  href={item.hash}
-                  onClick={close}
-                  className="font-display text-xs uppercase tracking-[0.3em] text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  {item.label}
-                </a>
+                )}
               </div>
             );
           })}
