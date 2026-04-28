@@ -36,22 +36,33 @@ export function mapCollectibleCard(
   presentation: LoreEntityModalPresentation,
 ): CollectibleCardData {
   const axisOrder = getPresentationAxisOrder(presentation);
+  const orderedCategories = entity.categories
+    .filter((axis) => axis.values.length > 0)
+    .sort((left, right) => {
+      const leftOrder = axisOrder.get(left.key) ?? Number.MAX_SAFE_INTEGER;
+      const rightOrder = axisOrder.get(right.key) ?? Number.MAX_SAFE_INTEGER;
+
+      if (leftOrder !== rightOrder) {
+        return leftOrder - rightOrder;
+      }
+
+      return left.label.localeCompare(right.label);
+    });
+
+  const primaryCategories = orderedCategories.filter((axis) => axisOrder.has(axis.key));
+  const fallbackDetails = [
+    ...entity.groups.map((group) => ({
+      key: `group:${group.key}`,
+      label: "group",
+      values: [{ key: group.key, label: group.label }],
+    })),
+    ...orderedCategories.filter((axis) => !axisOrder.has(axis.key)),
+  ];
 
   return {
     badgeLabel: getBadgeLabel(entity, presentation),
     description: truncateText(entity.description, DESCRIPTION_LIMIT),
-    axes: entity.categories
-      .filter((axis) => axis.values.length > 0)
-      .sort((left, right) => {
-        const leftOrder = axisOrder.get(left.key) ?? Number.MAX_SAFE_INTEGER;
-        const rightOrder = axisOrder.get(right.key) ?? Number.MAX_SAFE_INTEGER;
-
-        if (leftOrder !== rightOrder) {
-          return leftOrder - rightOrder;
-        }
-
-        return left.label.localeCompare(right.label);
-      })
+    axes: [...primaryCategories, ...fallbackDetails]
       .slice(0, AXIS_LIMIT)
       .map((axis) => ({
         key: axis.key,

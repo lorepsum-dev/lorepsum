@@ -10,7 +10,7 @@ interface CollectibleCardBackProps {
 
 const SIZE_CLASSES: Record<CollectibleCardSize, string> = {
   sm: "w-52 h-[20rem]",
-  lg: "w-[20rem] h-[35rem]",
+  lg: "w-[20rem] h-[38rem]",
 };
 
 function CollectibleCardBack({

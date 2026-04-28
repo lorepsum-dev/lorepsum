@@ -14,6 +14,8 @@ interface EntityModalProps {
 
 function EntityModal({
   entity,
+  entities,
+  relationships,
   entityModalPresentation,
   onClose,
 }: EntityModalProps) {
@@ -64,7 +66,7 @@ function EntityModal({
 
           <div className="min-w-0 shrink-0" style={{ perspective: "1200px" }}>
             <div
-              className="relative h-[35rem] w-[20rem]"
+              className="relative h-[38rem] w-[20rem]"
               style={{
                 transformStyle: "preserve-3d",
                 transition: "transform 0.65s cubic-bezier(0.4, 0.2, 0.2, 1)",

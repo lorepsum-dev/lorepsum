@@ -41,16 +41,16 @@ const SIZE_TOKENS: Record<CollectibleCardSize, SizeTokens> = {
     axesLabelWidth: "w-14",
   },
   lg: {
-    card: "h-[35rem] w-[20rem]",
+    card: "h-[38rem] w-[20rem]",
     padding: "p-4",
     headerHeight: "h-5",
     headerText: "text-[10px]",
     nameHeight: "h-8",
     nameText: "text-xl",
-    descriptionHeight: "h-[5.5rem]",
+    descriptionHeight: "h-[4.5rem]",
     descriptionText: "text-xs leading-relaxed",
-    axesHeight: "h-[4.25rem]",
-    axesText: "text-[10px]",
+    axesHeight: "h-[6.25rem]",
+    axesText: "text-[9px]",
     axesLabelWidth: "w-auto",
   },
 };
@@ -109,7 +109,7 @@ function CollectibleCard({
 
       <div
         className={cn(
-          "relative mx-auto mt-2.5 flex w-full items-center justify-center overflow-hidden rounded-xl border border-primary-light/10 bg-background/20",
+          "relative mx-auto mt-2.5 flex w-[15rem] shrink-0 items-center justify-center overflow-hidden rounded-xl border border-primary-light/10 bg-background/20",
         )}
         style={{ aspectRatio: "3 / 4" }}
       >
@@ -125,6 +125,7 @@ function CollectibleCard({
       <p
         className={cn(
           "mt-2.5 line-clamp-6 text-center text-muted-foreground",
+          "shrink-0",
           tokens.descriptionHeight,
           tokens.descriptionText,
         )}
@@ -132,32 +133,34 @@ function CollectibleCard({
         {cardData.description}
       </p>
 
-      <div
-        className={cn(
-          "mt-auto grid content-end gap-1 rounded-lg border border-primary-light/10 bg-secondary/20 p-2",
-          tokens.axesHeight,
-        )}
-      >
+      <div className={cn("mt-auto flex shrink-0 flex-col justify-end gap-1.5", tokens.axesHeight)}>
         {cardData.axes.length > 0 ? (
-          cardData.axes.map((axis) => (
+          cardData.axes.map((axis, index) => (
             <div
               key={axis.key}
-              className={cn(
-                "flex min-w-0 items-center justify-between gap-2 font-mono",
-                tokens.axesText,
-              )}
+              className="flex min-h-0 items-center rounded-lg border border-primary-light/12 bg-secondary/25 px-2.5 py-1.5 shadow-[inset_0_1px_0_hsl(var(--primary-light)/0.06)]"
             >
-              <span
-                className={cn(
-                  "shrink-0 truncate uppercase tracking-[0.18em] text-primary-light/65",
-                  tokens.axesLabelWidth,
-                )}
-              >
-                {axis.label}
-              </span>
-              <span className="min-w-0 truncate text-right font-semibold text-foreground/85">
-                {axis.values.join(", ")}
-              </span>
+              <div className="flex min-w-0 flex-1 items-center gap-2">
+                <span
+                  aria-hidden="true"
+                  className="shrink-0 font-display text-xs leading-none text-primary-light/60 drop-shadow-[0_0_6px_hsl(var(--primary-light)/0.35)]"
+                >
+                  ✦
+                </span>
+
+                <span
+                  className={cn(
+                    "w-16 shrink-0 truncate font-mono uppercase tracking-[0.18em] text-primary-light/60",
+                    tokens.axesText,
+                  )}
+                >
+                  {axis.label}
+                </span>
+
+                <span className="min-w-0 truncate text-right text-xs font-medium leading-tight text-foreground/85">
+                  {axis.values.join(", ")}
+                </span>
+              </div>
             </div>
           ))
         ) : (
