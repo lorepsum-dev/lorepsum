@@ -177,6 +177,28 @@ All colors MUST be HSL.
   to { stroke-dashoffset: 0; }
 }
 
+@keyframes perspectiveFloat {
+  0%, 100% { transform: translate3d(0, 0, var(--node-depth, 0px)); }
+  50% { transform: translate3d(0, -6px, calc(var(--node-depth, 0px) + 6px)); }
+}
+
+@keyframes perspectiveDrift {
+  0% { transform: rotate(var(--ring-tilt, 0deg)) translateZ(var(--ring-depth, 0px)); }
+  50% { transform: rotate(calc(var(--ring-tilt, 0deg) + 0.6deg)) translateZ(calc(var(--ring-depth, 0px) + 4px)); }
+  100% { transform: rotate(var(--ring-tilt, 0deg)) translateZ(var(--ring-depth, 0px)); }
+}
+
+@keyframes centerPulse {
+  0%, 100% {
+    transform: translateZ(70px);
+    box-shadow: 0 0 42px hsl(var(--primary-light) / 0.45), 0 30px 50px -20px hsl(var(--primary-light) / 0.35);
+  }
+  50% {
+    transform: translateZ(82px);
+    box-shadow: 0 0 56px hsl(var(--primary-light) / 0.55), 0 36px 60px -20px hsl(var(--primary-light) / 0.45);
+  }
+}
+
 @layer utilities {
   .font-display {
     font-family: 'Unbounded', 'Inter', system-ui, sans-serif;
@@ -190,5 +212,47 @@ All colors MUST be HSL.
   }
   .card-glow {
     box-shadow: var(--shadow-card), var(--shadow-glow);
+  }
+  .perspective-stage {
+    perspective: 1400px;
+    perspective-origin: 50% 35%;
+  }
+  .perspective-stage-inner {
+    transform-style: preserve-3d;
+    transform: rotateX(10deg);
+  }
+  .perspective-ring {
+    transform-style: preserve-3d;
+    transform: translateZ(var(--ring-depth, 0px));
+    animation: perspectiveDrift 14s ease-in-out infinite;
+    animation-delay: var(--ring-delay, 0s);
+    will-change: transform;
+  }
+  .perspective-node {
+    transform-style: preserve-3d;
+    animation: perspectiveFloat 6s ease-in-out infinite;
+    animation-delay: var(--node-delay, 0s);
+    transition: transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    will-change: transform;
+  }
+  .perspective-node:hover,
+  .perspective-node:focus-visible {
+    animation-play-state: paused;
+    transform: translate3d(0, -8px, 60px) scale(1.08);
+  }
+  .perspective-node[data-selected="true"] {
+    animation-play-state: paused;
+    transform: translate3d(0, -10px, 80px) scale(1.1);
+  }
+  .perspective-center {
+    transform-style: preserve-3d;
+    animation: centerPulse 7s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .perspective-ring,
+    .perspective-node,
+    .perspective-center {
+      animation: none;
+    }
   }
 }
