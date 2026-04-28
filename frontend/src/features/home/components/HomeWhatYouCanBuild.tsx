@@ -2,7 +2,7 @@ import { useCases } from "../model/homeContent";
 
 const HomeWhatYouCanBuild = () => {
   return (
-    <section id="what-you-can-build" className="relative mx-auto max-w-7xl px-6 py-28">
+    <section id="what-you-can-build" className="relative mx-auto max-w-full py-28">
       <div className="mb-16 max-w-2xl">
         <p className="font-mono text-xs uppercase tracking-[0.35em] text-primary-light/55">
           What you can connect

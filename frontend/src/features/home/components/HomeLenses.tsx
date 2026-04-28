@@ -2,7 +2,7 @@ import { lenses } from "../model/homeContent";
 
 const HomeLenses = () => {
   return (
-    <section id="explore" className="relative mx-auto max-w-7xl px-6 py-28">
+    <section id="explore" className="relative mx-auto max-w-full py-28">
       <div className="mb-16 max-w-2xl">
         <p className="font-mono text-xs uppercase tracking-[0.35em] text-primary-light/55">
           Explore

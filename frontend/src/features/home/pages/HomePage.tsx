@@ -10,7 +10,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen text-foreground">
       <HomeSignIn />
-      <main>
+      <main className="mx-auto w-full max-w-[1040px] px-6">
         <HomeHero />
         <HomeWhatYouCanBuild />
         <HomeLenses />

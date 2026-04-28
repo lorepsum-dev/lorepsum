@@ -33,6 +33,17 @@ interface GraphEdge {
   labelAngle: number;
 }
 
+interface RelationshipLegendItem {
+  key: string;
+  label: string;
+  color: string;
+  isReverse: boolean;
+  directCount: number;
+  totalCount: number;
+}
+
+type GraphExplorationMode = "focus" | "expanded";
+
 const SVG_WIDTH = 1100;
 const SVG_HEIGHT = 680;
 const CENTER_X = SVG_WIDTH / 2;
@@ -135,6 +146,75 @@ function getRelationshipLegendLabel(relationshipType: Relationship["type"]) {
   return `${forwardLabel} / ${reverseLabel}`;
 }
 
+function getRelationshipLegendItem(edge: GraphEdge, perspectiveEntityId: number | null): RelationshipLegendItem {
+  const relationshipKey = edge.relationship.type.key || "relationship";
+  const label = getEdgeLabel(edge.relationship, perspectiveEntityId);
+  const isReverse = isReversePerspective(edge.relationship, perspectiveEntityId);
+  const isDirect = Boolean(
+    perspectiveEntityId
+    && (
+      edge.relationship.sourceEntityId === perspectiveEntityId
+      || edge.relationship.targetEntityId === perspectiveEntityId
+    ),
+  );
+
+  return {
+    key: `${relationshipKey}:${label}:${isReverse ? "reverse" : "forward"}`,
+    label,
+    color: getRelationshipColor(relationshipKey),
+    isReverse,
+    directCount: isDirect ? 1 : 0,
+    totalCount: 1,
+  };
+}
+
+function buildVisibleRelationshipLegendItems(
+  edges: GraphEdge[],
+  perspectiveEntityId: number | null,
+): RelationshipLegendItem[] {
+  const byRelationshipType = new Map<string, Map<string, RelationshipLegendItem>>();
+
+  edges.forEach((edge) => {
+    const relationshipTypeKey = edge.relationship.type.key || "relationship";
+    const item = getRelationshipLegendItem(edge, perspectiveEntityId);
+    const labelsByKey = byRelationshipType.get(relationshipTypeKey) ?? new Map<string, RelationshipLegendItem>();
+    const existing = labelsByKey.get(item.key);
+
+    if (existing) {
+      existing.directCount += item.directCount;
+      existing.totalCount += 1;
+    } else {
+      labelsByKey.set(item.key, item);
+    }
+
+    byRelationshipType.set(relationshipTypeKey, labelsByKey);
+  });
+
+  return Array.from(byRelationshipType.values())
+    .map((itemsByLabel) => (
+      Array.from(itemsByLabel.values()).sort((left, right) => {
+        const directDelta = right.directCount - left.directCount;
+
+        if (directDelta !== 0) {
+          return directDelta;
+        }
+
+        const totalDelta = right.totalCount - left.totalCount;
+
+        if (totalDelta !== 0) {
+          return totalDelta;
+        }
+
+        if (left.isReverse !== right.isReverse) {
+          return left.isReverse ? 1 : -1;
+        }
+
+        return left.label.localeCompare(right.label);
+      })[0]
+    ))
+    .sort((left, right) => left.label.localeCompare(right.label));
+}
+
 function getQuadraticPoint(
   source: GraphNode,
   controlX: number,
@@ -210,20 +290,22 @@ function getConnectedEntityIds(entityId: number, relationships: Relationship[]) 
 
 function getVisibleEntityIds(
   focusEntityId: number | null,
-  expandedEntityIds: Set<number>,
   relationships: Relationship[],
+  mode: GraphExplorationMode,
 ) {
   const visibleIds = new Set<number>();
 
   if (focusEntityId !== null) {
     visibleIds.add(focusEntityId);
-    getConnectedEntityIds(focusEntityId, relationships).forEach((entityId) => visibleIds.add(entityId));
-  }
+    const directEntityIds = getConnectedEntityIds(focusEntityId, relationships);
+    directEntityIds.forEach((entityId) => visibleIds.add(entityId));
 
-  expandedEntityIds.forEach((entityId) => {
-    visibleIds.add(entityId);
-    getConnectedEntityIds(entityId, relationships).forEach((connectedEntityId) => visibleIds.add(connectedEntityId));
-  });
+    if (mode === "expanded") {
+      directEntityIds.forEach((entityId) => {
+        getConnectedEntityIds(entityId, relationships).forEach((relatedEntityId) => visibleIds.add(relatedEntityId));
+      });
+    }
+  }
 
   return visibleIds;
 }
@@ -394,9 +476,9 @@ function LoreGraphSection({
   onSelectEntity,
 }: LoreGraphSectionProps) {
   const [relationshipTypeFilter, setRelationshipTypeFilter] = useState("all");
+  const [graphMode, setGraphMode] = useState<GraphExplorationMode>("focus");
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
-  const [focusEntityId, setFocusEntityId] = useState<number | null>(null);
-  const [expandedEntityIds, setExpandedEntityIds] = useState<Set<number>>(() => new Set());
+  const [focusedEntityId, setFocusedEntityId] = useState<number | null>(selectedId);
   const [hoveredNodeId, setHoveredNodeId] = useState<number | null>(null);
   const [hoveredEdgeId, setHoveredEdgeId] = useState<number | null>(null);
   const [entitySearch, setEntitySearch] = useState("");
@@ -415,14 +497,14 @@ function LoreGraphSection({
       ? relationships
       : relationships.filter((relationship) => relationship.type.key === relationshipTypeFilter)
   ), [relationshipTypeFilter, relationships]);
-  const activeFocusEntityId = focusEntityId ?? selectedId ?? null;
+  const activeFocusEntityId = focusedEntityId;
   const entityLevels = useMemo(
     () => getEntityLevels(activeFocusEntityId, visibleRelationships),
     [activeFocusEntityId, visibleRelationships],
   );
   const visibleEntityIds = useMemo(
     () => {
-      const exploredEntityIds = getVisibleEntityIds(activeFocusEntityId, expandedEntityIds, visibleRelationships);
+      const exploredEntityIds = getVisibleEntityIds(activeFocusEntityId, visibleRelationships, graphMode);
 
       if (exploredEntityIds.size > 0) {
         return exploredEntityIds;
@@ -430,7 +512,7 @@ function LoreGraphSection({
 
       return getInitialEntityIds(entities, visibleRelationships);
     },
-    [activeFocusEntityId, entities, expandedEntityIds, visibleRelationships],
+    [activeFocusEntityId, entities, graphMode, visibleRelationships],
   );
   const visibleEntities = useMemo(() => (
     entities
@@ -466,23 +548,11 @@ function LoreGraphSection({
       .map(([, type]) => type)
       .sort((left, right) => left.label.localeCompare(right.label))
   ), [graph.nodes]);
-  const visibleRelationshipTypes = useMemo(() => (
-    Array.from(
-      graph.edges.reduce((types, edge) => {
-        const key = edge.relationship.type.key || "relationship";
-
-        if (!types.has(key)) {
-          types.set(key, edge.relationship.type);
-        }
-
-        return types;
-      }, new Map<string, Relationship["type"]>()),
-    )
-      .map(([, type]) => type)
-      .sort((left, right) => getRelationshipLegendLabel(left).localeCompare(getRelationshipLegendLabel(right)))
-  ), [graph.edges]);
+  const visibleRelationshipLegendItems = useMemo(
+    () => buildVisibleRelationshipLegendItems(graph.edges, activeFocusEntityId),
+    [activeFocusEntityId, graph.edges],
+  );
   const graphFitTransform = useMemo(() => getGraphFitTransform(graph.nodes), [graph.nodes]);
-  const selectedNode = selectedId ? graph.nodes.find((node) => node.entity.id === selectedId) : null;
   const visibleNodeCount = graph.nodes.length;
   const hiddenNodeCount = Math.max(0, visibleEntityIds.size - visibleNodeCount);
   const sortedEntities = useMemo(
@@ -500,7 +570,7 @@ function LoreGraphSection({
 
   useEffect(() => {
     if (selectedId) {
-      setFocusEntityId(selectedId);
+      setFocusedEntityId(selectedId);
       setEntitySearch(entities.find((entity) => entity.id === selectedId)?.name ?? "");
     }
   }, [entities, selectedId]);
@@ -516,25 +586,14 @@ function LoreGraphSection({
       element.scrollLeft = Math.max(0, (element.scrollWidth - element.clientWidth) / 2);
       element.scrollTop = Math.max(0, (element.scrollHeight - element.clientHeight) / 2);
     });
-  }, [activeFocusEntityId, relationshipTypeFilter, visibleNodeCount, zoom]);
+  }, [activeFocusEntityId, graphMode, relationshipTypeFilter, visibleNodeCount, zoom]);
 
   const handleNodeSelect = (entityId: number) => {
     if (didPanRef.current) {
       return;
     }
 
-    setFocusEntityId(entityId);
-    setExpandedEntityIds((current) => {
-      const next = new Set(current);
-
-      if (next.has(entityId)) {
-        next.delete(entityId);
-      } else {
-        next.add(entityId);
-      }
-
-      return next;
-    });
+    focusEntity(entityId);
   };
 
   const handleNodeDetails = (entityId: number) => {
@@ -546,8 +605,7 @@ function LoreGraphSection({
   };
 
   const focusEntity = (entityId: number) => {
-    setFocusEntityId(entityId);
-    setExpandedEntityIds(new Set([entityId]));
+    setFocusedEntityId(entityId);
     setEntitySearch(entities.find((entity) => entity.id === entityId)?.name ?? "");
     setIsEntitySearchOpen(false);
   };
@@ -679,25 +737,39 @@ function LoreGraphSection({
                 </div>
               )}
             </div>
-            <button
-              type="button"
-              onClick={focusSearchResult}
-              className="rounded-lg border border-primary-light/15 px-3 py-1.5 font-mono text-xs text-muted-foreground transition hover:border-primary-light/40 hover:text-primary-light"
-            >
-              Focus
-            </button>
           </div>
           <button
             type="button"
             onClick={() => {
-              setFocusEntityId(null);
-              setExpandedEntityIds(new Set());
+              setFocusedEntityId(null);
               setEntitySearch("");
             }}
             className="rounded-lg border border-primary-light/15 px-3 py-1.5 font-mono text-xs text-muted-foreground transition hover:border-primary-light/40 hover:text-primary-light"
           >
             Reset
           </button>
+          <div
+            role="group"
+            aria-label="Graph exploration mode"
+            className="flex items-center gap-0.5 rounded-lg border border-primary-light/15 bg-background/70 p-0.5"
+          >
+            {(["focus", "expanded"] as GraphExplorationMode[]).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setGraphMode(mode)}
+                aria-pressed={graphMode === mode}
+                className={cn(
+                  "rounded-md px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.25em] transition",
+                  graphMode === mode
+                    ? "bg-primary-light/15 text-primary-light"
+                    : "text-muted-foreground/60 hover:text-primary-light",
+                )}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
           <div className="relative">
             <select
               value={relationshipTypeFilter}
@@ -816,19 +888,18 @@ function LoreGraphSection({
                 ))}
 
                 {graph.nodes.map((node) => {
-                  const isSelected = selectedId === node.entity.id;
                   const isFocused = activeFocusEntityId === node.entity.id;
                   const isHovered = hoveredNodeId === node.entity.id;
-                  const isConnectedToSelected = selectedNode
+                  const isConnectedToFocus = activeFocusEntityId
                     ? visibleRelationships.some((relationship) => (
-                      (relationship.sourceEntityId === selectedNode.entity.id && relationship.targetEntityId === node.entity.id)
-                      || (relationship.targetEntityId === selectedNode.entity.id && relationship.sourceEntityId === node.entity.id)
+                      (relationship.sourceEntityId === activeFocusEntityId && relationship.targetEntityId === node.entity.id)
+                      || (relationship.targetEntityId === activeFocusEntityId && relationship.sourceEntityId === node.entity.id)
                     ))
                     : false;
 
                   const isLevelOne = node.level === 1;
-                  const isMuted = node.level >= 2 && !isSelected && !isFocused && !isHovered;
-                  const nodeRadius = isFocused ? NODE_RADIUS + 8 : isSelected ? NODE_RADIUS + 5 : isLevelOne ? NODE_RADIUS + 2 : NODE_RADIUS;
+                  const isMuted = node.level >= 2 && !isFocused && !isHovered;
+                  const nodeRadius = isFocused ? NODE_RADIUS + 8 : isLevelOne ? NODE_RADIUS + 2 : NODE_RADIUS;
                   const labelPosition = getNodeLabelPosition(node, nodeRadius);
                   const typeVisual = getEntityTypeGraphVisual(node.entity);
                   const nodeColor = isFocused
@@ -873,9 +944,9 @@ function LoreGraphSection({
                         opacity={nodeOpacity}
                         className={cn(
                           "transition-all",
-                          isSelected
+                          isFocused
                             ? ""
-                            : isConnectedToSelected
+                            : isConnectedToFocus
                               ? ""
                               : "",
                         )}
@@ -893,8 +964,8 @@ function LoreGraphSection({
                         style={{ paintOrder: "stroke fill" }}
                         className={cn(
                           "pointer-events-none fill-muted-foreground font-mono text-[10px] opacity-0 transition-all",
-                          (isFocused || isHovered || isLevelOne || isSelected) && "opacity-100",
-                          (isFocused || isSelected) && "fill-primary-light",
+                          (isFocused || isHovered || isLevelOne) && "opacity-100",
+                          isFocused && "fill-primary-light",
                           isMuted && "fill-muted-foreground/45",
                         )}
                       >
@@ -947,40 +1018,34 @@ function LoreGraphSection({
                 Relationships
               </h4>
               <div className="flex flex-col gap-2">
-                {visibleRelationshipTypes.map((relationshipType) => {
-                  const color = getRelationshipColor(relationshipType.key);
-                  const forwardLabel = relationshipType.forwardLabel || relationshipType.key;
-                  const reverseLabel = relationshipType.reverseLabel;
-                  const showReverse = !relationshipType.isSymmetric && reverseLabel && reverseLabel !== forwardLabel;
-
-                  return (
-                    <div key={relationshipType.key} className="flex flex-col gap-1.5">
-                      <div className="flex items-center gap-2 font-mono text-xs text-muted-foreground">
-                        <span
-                          className="h-px w-8 rounded-full"
-                          style={{ backgroundColor: color }}
+                {visibleRelationshipLegendItems.map((legendItem) => (
+                  <div key={legendItem.key} className="flex items-center gap-2 font-mono text-xs text-muted-foreground">
+                    {legendItem.isReverse ? (
+                      <svg width="32" height="2" viewBox="0 0 32 2" aria-hidden="true">
+                        <line
+                          x1="0"
+                          y1="1"
+                          x2="32"
+                          y2="1"
+                          stroke={legendItem.color}
+                          strokeWidth="1.5"
+                          strokeDasharray="6 5"
                         />
-                        <span>{forwardLabel}</span>
-                      </div>
-                      {showReverse && (
-                        <div className="flex items-center gap-2 font-mono text-xs text-muted-foreground/75">
-                          <svg width="32" height="2" viewBox="0 0 32 2" aria-hidden="true">
-                            <line
-                              x1="0"
-                              y1="1"
-                              x2="32"
-                              y2="1"
-                              stroke={color}
-                              strokeWidth="1.5"
-                              strokeDasharray="6 5"
-                            />
-                          </svg>
-                          <span>{reverseLabel}</span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                      </svg>
+                    ) : (
+                      <span
+                        className="h-px w-8 rounded-full"
+                        style={{ backgroundColor: legendItem.color }}
+                      />
+                    )}
+                    <span>{legendItem.label}</span>
+                  </div>
+                ))}
+                {visibleRelationshipLegendItems.length === 0 && (
+                  <div className="font-mono text-xs text-muted-foreground/45">
+                    No visible relationships
+                  </div>
+                )}
               </div>
             </div>
           </aside>

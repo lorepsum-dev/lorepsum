@@ -4,7 +4,7 @@ import { EXAMPLE_LORE_PATH, SIGNUP_PATH } from "../model/homeContent";
 
 const HomeFinalCTA = () => {
   return (
-    <section className="relative mx-auto max-w-4xl px-6 py-32 text-center">
+    <section className="relative mx-auto max-w-4xl py-32 text-center">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-1/2 -z-10 mx-auto h-72 w-72 -translate-y-1/2 rounded-full bg-primary-glow/15 blur-[120px]"

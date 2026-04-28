@@ -2,7 +2,7 @@ import { howSteps } from "../model/homeContent";
 
 const HomeHowItWorks = () => {
   return (
-    <section id="how-it-works" className="relative mx-auto max-w-7xl px-6 py-28">
+    <section id="how-it-works" className="relative mx-auto max-w-full py-28">
       <div className="card-glow overflow-hidden rounded-3xl border border-primary-light/15 bg-card/55 p-10 md:p-16">
         <div className="grid gap-12 md:grid-cols-2 md:gap-20">
           <div>
