@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import type { Entity } from "../../model/types";
 import { useEntityImage } from "../../hooks/useEntityImage";
+import type { Entity } from "../../model/types";
 
 interface EntityCardProps {
   entity: Entity;
@@ -25,7 +25,6 @@ function EntityCard({ entity, position, onSelect, compact }: EntityCardProps) {
       )}
       style={{ aspectRatio: "3 / 4" }}
     >
-      {/* Image area — grows to fill available space, image contained with padding */}
       <div className="flex min-h-0 flex-1 items-center justify-center p-4">
         <img
           src={imageSrc}
@@ -36,7 +35,6 @@ function EntityCard({ entity, position, onSelect, compact }: EntityCardProps) {
         />
       </div>
 
-      {/* Footer — fixed height, never stretches the card */}
       <div
         className={cn(
           "shrink-0 border-t px-3 py-2.5 text-center",
@@ -45,7 +43,7 @@ function EntityCard({ entity, position, onSelect, compact }: EntityCardProps) {
       >
         <span
           className={cn(
-            "block font-display text-sm font-semibold leading-tight",
+            "block truncate font-display text-sm font-semibold leading-tight",
             isCenter ? "text-foreground" : "text-foreground/40",
           )}
         >
@@ -53,7 +51,7 @@ function EntityCard({ entity, position, onSelect, compact }: EntityCardProps) {
         </span>
 
         {!compact && isCenter && (
-          <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.3em] text-primary-light/40">
+          <span className="mt-1 block truncate font-mono text-[10px] uppercase tracking-[0.3em] text-primary-light/40">
             {entity.entityType.label}
           </span>
         )}

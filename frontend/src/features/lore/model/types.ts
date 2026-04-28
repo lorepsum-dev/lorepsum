@@ -146,6 +146,18 @@ export interface EntityModalData {
   labeledCategories: Array<[string, string[]]>;
 }
 
+export interface CollectibleCardAxis {
+  key: string;
+  label: string;
+  values: string[];
+}
+
+export interface CollectibleCardData {
+  badgeLabel: string | null;
+  description: string;
+  axes: CollectibleCardAxis[];
+}
+
 export interface LorePageData {
   lore: Lore;
   graph: GraphData;

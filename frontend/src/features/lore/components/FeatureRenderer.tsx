@@ -3,7 +3,13 @@ import LoreGraphSection from "./LoreGraphSection";
 import LoreCardsSection from "./LoreCardsSection";
 import LoreNarrativesSection from "./LoreNarrativesSection";
 import LoreTreeSection from "./LoreTreeSection";
-import type { Entity, LoreFeature, Narrative, Relationship, TreeNode } from "../model/types";
+import type {
+  Entity,
+  LoreFeature,
+  Narrative,
+  Relationship,
+  TreeNode,
+} from "../model/types";
 
 const FEATURE_IDS = {
   tree: 1,
