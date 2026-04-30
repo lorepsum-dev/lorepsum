@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ChevronRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { Entity, SidebarEntityGroup } from "../model/types";
@@ -8,8 +9,6 @@ interface LoreSidebarProps {
   entities: Entity[];
   groupedEntities: SidebarEntityGroup[];
   selectedId: number | null;
-  sidebarMode: "all" | "grouped";
-  onToggleMode: () => void;
   onSelect: (id: number) => void;
 }
 
@@ -49,11 +48,22 @@ function LoreSidebar({
   entities,
   groupedEntities,
   selectedId,
-  sidebarMode,
-  onToggleMode,
   onSelect,
 }: LoreSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
+
+  const toggleGroup = (groupId: string) => {
+    setOpenGroups((current) => {
+      const next = new Set(current);
+      if (next.has(groupId)) {
+        next.delete(groupId);
+      } else {
+        next.add(groupId);
+      }
+      return next;
+    });
+  };
 
   return (
     <>
@@ -89,49 +99,62 @@ function LoreSidebar({
           isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0",
         )}
       >
-        <div className="mb-2 flex items-center gap-2">
+        <div className="mb-3 flex items-center gap-2">
           <span className="font-mono text-sm text-primary-light/30">╰·</span>
           <span className="font-display text-xs uppercase tracking-[0.25em] text-primary-light/60">
             Entities
           </span>
         </div>
 
-        <button
-          onClick={onToggleMode}
-          className={cn(
-            "ml-3 mb-3 self-start rounded-full border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.25em] transition-colors",
-            sidebarMode === "all"
-              ? "border-primary-light/40 bg-primary/20 text-primary-light"
-              : "border-primary-light/15 text-primary-light/30 hover:border-primary-light/30 hover:text-primary-light/60",
-          )}
-        >
-          All
-        </button>
-
         <div className="entity-scroll ml-3 flex flex-1 flex-col gap-1 overflow-y-auto pr-3">
           {isLoading ? (
             [...Array(6)].map((_, index) => <Skeleton key={index} className="my-1 h-5 w-32" />)
-          ) : sidebarMode === "all" ? (
-            <EntityList
-              entities={entities.slice().sort((left, right) => left.id - right.id)}
-              selectedId={selectedId}
-              onSelect={onSelect}
-              onClose={() => setIsOpen(false)}
-            />
           ) : (
-            groupedEntities.map((group) => (
-              <div key={group.id} className="mb-3">
-                <span className="mb-1 block font-mono text-[10px] uppercase tracking-[0.25em] text-primary-light/30">
-                  {group.label}
-                </span>
-                <EntityList
-                  entities={group.entities}
-                  selectedId={selectedId}
-                  onSelect={onSelect}
-                  onClose={() => setIsOpen(false)}
-                />
-              </div>
-            ))
+            groupedEntities.map((group) => {
+              const isExpanded = openGroups.has(group.id);
+
+              return (
+                <div key={group.id} className="mb-1">
+                  <button
+                    onClick={() => toggleGroup(group.id)}
+                    aria-expanded={isExpanded}
+                    className="group flex w-full items-center gap-1.5 py-1 text-left transition-colors focus:outline-none"
+                  >
+                    <ChevronRight
+                      className={cn(
+                        "h-3 w-3 shrink-0 text-primary-light/30 transition-transform duration-200 group-hover:text-primary-light/60",
+                        isExpanded && "rotate-90 text-primary-light/60",
+                      )}
+                      strokeWidth={2}
+                    />
+                    <span
+                      className={cn(
+                        "font-display text-[11px] uppercase tracking-[0.25em] transition-colors",
+                        isExpanded
+                          ? "text-primary-light/80"
+                          : "text-primary-light/40 group-hover:text-primary-light/70",
+                      )}
+                    >
+                      {group.label}
+                    </span>
+                    <span className="ml-auto font-mono text-[10px] tabular-nums text-primary-light/30">
+                      {group.entities.length}
+                    </span>
+                  </button>
+
+                  {isExpanded && (
+                    <div className="mt-1 pl-4">
+                      <EntityList
+                        entities={group.entities}
+                        selectedId={selectedId}
+                        onSelect={onSelect}
+                        onClose={() => setIsOpen(false)}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
       </aside>
