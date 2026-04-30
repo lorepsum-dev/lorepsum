@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import HomeConstellation from "./HomeConstellation";
-import { EXAMPLE_LORE_PATH, SIGNUP_PATH } from "../model/homeContent";
+import { SIGNUP_PATH } from "@/features/auth/model/authPaths";
+import { EXAMPLE_LORE_PATH } from "../model/homeContent";
 
 const HomeHero = () => {
   return (

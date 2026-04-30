@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { EXAMPLE_LORE_PATH, SIGNUP_PATH } from "../model/homeContent";
+import { SIGNUP_PATH } from "@/features/auth/model/authPaths";
+import { EXAMPLE_LORE_PATH } from "../model/homeContent";
 
 const HomeFinalCTA = () => {
   return (

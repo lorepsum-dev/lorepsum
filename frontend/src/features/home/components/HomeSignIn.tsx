@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { SIGNIN_PATH } from "../model/homeContent";
+import { SIGNIN_PATH } from "@/features/auth/model/authPaths";
 
 const HomeSignIn = () => {
   return (

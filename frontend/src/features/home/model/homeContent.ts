@@ -1,10 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { BookOpenText, GitFork, LayoutGrid, Network } from "lucide-react";
 
-export const SIGNUP_PATH = "/signup";
 export const EXAMPLE_LORE_PATH = "/lores/1";
-// TODO: replace with real auth route when implemented
-export const SIGNIN_PATH = "/signin";
 
 export type UseCase = {
   tag: string;
